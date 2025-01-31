@@ -33,7 +33,7 @@
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="16" isBold="true"/>
 				</textElement>
-				<textFieldExpression><![CDATA["EPA Weather Impact Assessment Report"]]></textFieldExpression>
+				<textFieldExpression><![CDATA[EPA Weather Impact Assessment Report]]></textFieldExpression>
 			</textField>
 			<textField>
 				<reportElement x="0" y="40" width="555" height="20" uuid="4353b242-9eff-4689-8d83-487bb65628e2"/>
