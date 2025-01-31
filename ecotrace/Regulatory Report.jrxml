@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports
+                                http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="EPA_Weather_Impact_Report"
+              pageWidth="595"
+              pageHeight="842"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20">
+
+    <!-- Report Parameters -->
+    <parameter name="reportDate" class="java.util.Date"/>
+    <parameter name="facilityName" class="java.lang.String"/>
+    <parameter name="facilityId" class="java.lang.String"/>
+    <parameter name="reportPeriod" class="java.lang.String"/>
+
+    <!-- Fields for Weather Data -->
+    <field name="eventDate" class="java.util.Date"/>
+    <field name="eventType" class="java.lang.String"/>
+    <field name="severity" class="java.lang.String"/>
+    <field name="impactLevel" class="java.lang.String"/>
+    <field name="mitigationActions" class="java.lang.String"/>
+    <field name="complianceStatus" class="java.lang.String"/>
+
+    <!-- Styles -->
+    <style name="HeaderStyle" fontSize="12" isBold="true"/>
+    <style name="TableHeader" fontSize="10" isBold="true" backcolor="#E0E0E0"/>
+    <style name="TableRow" fontSize="10"/>
+
+    <!-- Title Band -->
+    <title>
+        <band height="80">
+            <staticText>
+                <reportElement x="0" y="0" width="555" height="30"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font size="16" isBold="true"/>
+                </textElement>
+                <text><![CDATA[EPA Weather Impact Assessment Report]]></text>
+            </staticText>
+            
+            <!-- Facility Information -->
+            <textField>
+                <reportElement x="0" y="40" width="555" height="20"/>
+                <textElement>
+                    <font size="12"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Facility: " + $P{facilityName} + " (ID: " + $P{facilityId} + ")"]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <!-- Column Headers -->
+    <columnHeader>
+        <band height="30">
+            <staticText>
+                <reportElement style="TableHeader" x="0" y="0" width="80" height="30"/>
+                <text><![CDATA[Date]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="TableHeader" x="80" y="0" width="100" height="30"/>
+                <text><![CDATA[Event Type]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="TableHeader" x="180" y="0" width="80" height="30"/>
+                <text><![CDATA[Severity]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="TableHeader" x="260" y="0" width="100" height="30"/>
+                <text><![CDATA[Impact Level]]></text>
+            </staticText>
+            <staticText>
+                <reportElement style="TableHeader" x="360" y="0" width="195" height="30"/>
+                <text><![CDATA[Mitigation Actions]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- Detail Band -->
+    <detail>
+        <band height="30">
+            <textField pattern="MM/dd/yyyy">
+                <reportElement style="TableRow" x="0" y="0" width="80" height="30"/>
+                <textFieldExpression><![CDATA[$F{eventDate}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="TableRow" x="80" y="0" width="100" height="30"/>
+                <textFieldExpression><![CDATA[$F{eventType}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="TableRow" x="180" y="0" width="80" height="30"/>
+                <textFieldExpression><![CDATA[$F{severity}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="TableRow" x="260" y="0" width="100" height="30"/>
+                <textFieldExpression><![CDATA[$F{impactLevel}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement style="TableRow" x="360" y="0" width="195" height="30"/>
+                <textFieldExpression><![CDATA[$F{mitigationActions}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- Summary Section -->
+    <summary>
+        <band height="100">
+            <staticText>
+                <reportElement x="0" y="20" width="555" height="30"/>
+                <textElement>
+                    <font size="12" isBold="true"/>
+                </textElement>
+                <text><![CDATA[Compliance Status Summary]]></text>
+            </staticText>
+            <textField>
+                <reportElement x="0" y="50" width="555" height="50"/>
+                <textFieldExpression><![CDATA[$F{complianceStatus}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>
