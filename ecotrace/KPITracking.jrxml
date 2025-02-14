@@ -1,0 +1,3601 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.8.0.final using JasperReports Library version 6.8.0-2ed8dfabb690ff337a5797129f2cd92902b0c87b  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Metrics Report" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="559" leftMargin="18" rightMargin="18" topMargin="36" bottomMargin="36" isSummaryWithPageHeaderAndFooter="true" uuid="d0156837-e2c6-4bbc-9f07-b95048cf52d8">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="inch"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="inch"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="inch"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="inch"/>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#2E5EAF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="NewCasesByCaseType" uuid="408b3413-9cf2-49ff-b896-ca4cbb665baa">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT ct.C_NAME caseType,
+    CASE
+        WHEN fedCounts.counts IS NULL
+            THEN 0
+        ELSE fedCounts.counts
+    END fedCounts,
+    CASE
+        WHEN nonFedCounts.counts IS NULL
+            THEN 0
+        ELSE nonFedCounts.counts
+    END nonFedCounts
+FROM T_CASE_TYPE ct
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(ca.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(ca.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY ct.C_NAME
+) fedCounts ON fedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(ca.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(ca.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY ct.C_NAME
+) nonFedCounts ON nonFedCounts.names = ct.C_NAME]]>
+		</queryString>
+		<field name="CASETYPE" class="java.lang.String"/>
+		<field name="FEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="NONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<variable name="fedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="nonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{NONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEDCOUNTS}.add($F{NONFEDCOUNTS})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="NewCasesByApplicantType" uuid="2671c514-c1d2-4389-91d5-553d6b3c8988">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT
+    appType.C_NAME applicantType,
+    CASE
+        WHEN typeCounts.counts IS NULL
+            THEN 0
+        ELSE typeCounts.counts
+    END "COUNT"
+FROM T_APPLICANT_TYPE appType
+LEFT JOIN (
+    SELECT appType.C_NAME, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    WHERE TRUNC(ca.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(ca.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY appType.C_NAME
+) typeCounts ON typeCounts.C_NAME = appType.C_NAME
+ORDER BY appType.C_ORDER]]>
+		</queryString>
+		<field name="APPLICANTTYPE" class="java.lang.String"/>
+		<field name="COUNT" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{COUNT}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="NewCasesByInvestigationType" uuid="96cb3ec4-98c3-46bf-bdcd-c0ab4b603e29">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT
+    invType.C_NAME invType,
+    CASE
+        WHEN fedCounts.counts IS NULL
+            THEN 0
+        ELSE fedCounts.counts
+    END fedCounts,
+    CASE
+        WHEN nonFedCounts.counts IS NULL
+            THEN 0
+        ELSE nonFedCounts.counts
+    END nonFedCounts
+FROM T_INVESTIGATION_TYPE invType
+LEFT JOIN (
+    SELECT invType.C_NAME, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(ca.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(ca.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY invType.C_NAME
+) fedCounts ON fedCounts.C_NAME = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(ca.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(ca.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY invType.C_NAME
+) nonFedCounts ON nonFedCounts.C_NAME = invType.C_NAME
+ORDER BY invType.C_ORDER]]>
+		</queryString>
+		<field name="INVTYPE" class="java.lang.String"/>
+		<field name="FEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="NONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEDCOUNTS}.add($F{NONFEDCOUNTS})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="fedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="nonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{NONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="CaseTypesEnteringClosedState" uuid="37479593-5bf8-4f22-90da-1e01ece6bf32">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT ct.C_NAME caseType,
+    CASE
+        WHEN favFedCounts.counts IS NULL
+            THEN 0
+        ELSE favFedCounts.counts
+    END favFedCounts,
+    CASE
+        WHEN favNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE favNonFedCounts.counts
+    END favNonFedCounts,
+    CASE
+        WHEN unfavFedCounts.counts IS NULL
+            THEN 0
+        ELSE unfavFedCounts.counts
+    END unfavFedCounts,
+    CASE
+        WHEN unfavNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE unfavNonFedCounts.counts
+    END unfavNonFedCounts,
+    CASE
+        WHEN discFedCounts.counts IS NULL
+            THEN 0
+        ELSE discFedCounts.counts
+    END discFedCounts,
+    CASE
+        WHEN discNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE discNonFedCounts.counts
+    END discNonFedCounts
+FROM T_CASE_TYPE ct
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY ct.C_NAME
+) favFedCounts ON favFedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY ct.C_NAME
+) favNonFedCounts ON favNonFedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY ct.C_NAME
+) unfavFedCounts ON unfavFedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY ct.C_NAME
+) unfavNonFedCounts ON unfavNonFedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY ct.C_NAME
+) discFedCounts ON discFedCounts.names = ct.C_NAME
+LEFT JOIN (
+    SELECT ct.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_CASE_TYPE ct ON ct.ID = ca.C_CASE_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY ct.C_NAME
+) discNonFedCounts ON discNonFedCounts.names = ct.C_NAME
+ORDER BY ct.C_ORDER]]>
+		</queryString>
+		<field name="CASETYPE" class="java.lang.String"/>
+		<field name="FAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="FAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVFEDCOUNTS}.add($F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="ApplicantTypesEnteringClosedState" uuid="d0a1f841-ecfd-4828-bf84-66c350729779">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT appType.C_NAME appType,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.federal'
+        )
+            THEN    
+                CASE
+                    WHEN favFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE favFedCounts.counts
+                END
+        ELSE NULL
+    END favFedCounts,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.nonFederal'
+        )
+            THEN
+                CASE
+                    WHEN favNonFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE favNonFedCounts.counts
+                END
+        ELSE NULL
+    END favNonFedCounts,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.federal'
+        )
+            THEN    
+                CASE
+                    WHEN unfavFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE unfavFedCounts.counts
+                END
+        ELSE NULL
+    END unfavFedCounts,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.nonFederal'
+        )
+            THEN    
+                CASE
+                    WHEN unfavNonFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE unfavNonFedCounts.counts
+                END
+        ELSE NULL
+    END unfavNonFedCounts,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.federal'
+        )
+            THEN    
+                CASE
+                    WHEN discFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE discFedCounts.counts
+                END
+        ELSE NULL
+    END discFedCounts,
+    CASE
+        WHEN appType.c_metrics_report_designation = (
+            SELECT ID
+            FROM T_FED_OR_NON_FED_TYPE
+            WHERE C_CODE = 'fonf.nonFederal'
+        )
+            THEN    
+                CASE
+                    WHEN discNonFedCounts.counts IS NULL
+                        THEN 0
+                    ELSE discNonFedCounts.counts
+                END
+        ELSE NULL
+    END discNonFedCounts
+FROM T_APPLICANT_TYPE appType
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY appType.C_NAME
+) favFedCounts ON favFedCounts.names = appType.C_NAME
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY appType.C_NAME
+) favNonFedCounts ON favNonFedCounts.names = appType.C_NAME
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY appType.C_NAME
+) unfavFedCounts ON unfavFedCounts.names = appType.C_NAME
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY appType.C_NAME
+) unfavNonFedCounts ON unfavNonFedCounts.names = appType.C_NAME
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY appType.C_NAME
+) discFedCounts ON discFedCounts.names = appType.C_NAME
+LEFT JOIN (
+    SELECT appType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    LEFT JOIN T_APPLICANT_TYPE appType ON appType.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE appType.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY appType.C_NAME
+) discNonFedCounts ON discNonFedCounts.names = appType.C_NAME
+ORDER BY appType.C_ORDER]]>
+		</queryString>
+		<field name="APPTYPE" class="java.lang.String"/>
+		<field name="FAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="FAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[new BigDecimal($F{FAVFEDCOUNTS} == null ? 0 : $F{FAVFEDCOUNTS}.intValue()).add($F{FAVNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS} == null ? BigDecimal.ZERO : $F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS} == null ? BigDecimal.ZERO : $F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{DISCNONFEDCOUNTS})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="ClearancesGrantedDenied" uuid="0eda4bda-af57-4cf3-9e19-b63b376ec6ef">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT
+    cl.C_NAME clearnceLevel,
+	CASE
+        WHEN fedInterimCounts.counts IS NULL
+            THEN 0
+        ELSE fedInterimCounts.counts
+    END "fedInterimCount",
+	CASE
+        WHEN fedDeniedCounts.counts IS NULL
+            THEN 0
+        ELSE fedDeniedCounts.counts
+    END "fedDeniedCount",
+	CASE
+        WHEN fedFinalCounts.counts IS NULL
+            THEN 0
+        ELSE fedFinalCounts.counts
+    END "fedFinalCount",
+	CASE
+        WHEN nonFedInterimCounts.counts IS NULL
+            THEN 0
+        ELSE nonFedInterimCounts.counts
+    END "nonFedInterimCount",
+	CASE
+        WHEN nonFedDeniedCounts.counts IS NULL
+            THEN 0
+        ELSE nonFedDeniedCounts.counts
+    END "nonFedDeniedCount",
+	CASE
+        WHEN nonFedFinalCounts.counts IS NULL
+            THEN 0
+        ELSE nonFedFinalCounts.counts
+    END "nonFedFinalCount"
+FROM T_CLEARANCE_LEVEL cl
+LEFT JOIN (
+    SELECT cl.C_NAME, COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND ct.C_CODE = 'I'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) fedInterimCounts ON fedInterimCounts.C_NAME = cl.C_NAME
+LEFT JOIN (
+    SELECT 
+        cl.C_NAME, 
+        COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND ct.C_CODE = 'D'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) fedDeniedCounts ON fedDeniedCounts.C_NAME = cl.C_NAME
+LEFT JOIN (
+    SELECT cl.C_NAME, COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND ct.C_CODE = 'F'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) fedFinalCounts ON fedFinalCounts.C_NAME = cl.C_NAME
+LEFT JOIN (
+    SELECT cl.C_NAME, COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND ct.C_CODE = 'I'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) nonFedInterimCounts ON nonFedInterimCounts.C_NAME = cl.C_NAME
+LEFT JOIN (
+    SELECT cl.C_NAME, COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND ct.C_CODE = 'D'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) nonFedDeniedCounts ON nonFedDeniedCounts.C_NAME = cl.C_NAME
+LEFT JOIN (
+    SELECT cl.C_NAME, COUNT(*) counts
+    FROM T_CLEARANCE c
+    JOIN T_CLEARANCE_LEVEL cl ON cl.ID = c.C_CLEARANCE_LEVEL
+    JOIN T_CLEARANCE_TYPE ct ON ct.ID = c.C_CLEARANCE_TYPE
+    JOIN T_CASE ca ON ca.ID = c.C_ASSOCIATED_CASE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND ct.C_CODE = 'F'
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(c.C_GRANTED_DENIED_DATE) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    GROUP BY cl.C_NAME
+) nonFedFinalCounts ON nonFedFinalCounts.C_NAME = cl.C_NAME
+ORDER BY cl.C_ORDER]]>
+		</queryString>
+		<field name="CLEARNCELEVEL" class="java.lang.String"/>
+		<field name="fedInterimCount" class="java.math.BigDecimal"/>
+		<field name="fedDeniedCount" class="java.math.BigDecimal"/>
+		<field name="fedFinalCount" class="java.math.BigDecimal"/>
+		<field name="nonFedInterimCount" class="java.math.BigDecimal"/>
+		<field name="nonFedDeniedCount" class="java.math.BigDecimal"/>
+		<field name="nonFedFinalCount" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{fedInterimCount}.add($F{fedDeniedCount}).add($F{fedFinalCount}).add($F{nonFedInterimCount}).add($F{nonFedDeniedCount}).add($F{nonFedFinalCount})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="fedInterimTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{fedInterimCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="fedDeniedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{fedDeniedCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="fedFinalTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{fedFinalCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="nonFedInterimTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{nonFedInterimCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="nonFedDeniedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{nonFedDeniedCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="nonFedFinalTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{nonFedFinalCount}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<subDataset name="InvTypesEnteringClosedState" uuid="238dfda0-cef7-4cc9-9546-2003e1204a3a">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="EPA - DEV"/>
+		<parameter name="startDate" class="java.lang.String">
+			<defaultValueExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></defaultValueExpression>
+		</parameter>
+		<parameter name="endDate" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[SELECT invType.C_NAME invType,
+    CASE
+        WHEN favFedCounts.counts IS NULL
+            THEN 0
+        ELSE favFedCounts.counts
+    END favFedCounts,
+    CASE
+        WHEN favNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE favNonFedCounts.counts
+    END favNonFedCounts,
+    CASE
+        WHEN unfavFedCounts.counts IS NULL
+            THEN 0
+        ELSE unfavFedCounts.counts
+    END unfavFedCounts,
+    CASE
+        WHEN unfavNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE unfavNonFedCounts.counts
+    END unfavNonFedCounts,
+    CASE
+        WHEN discFedCounts.counts IS NULL
+            THEN 0
+        ELSE discFedCounts.counts
+    END discFedCounts,
+    CASE
+        WHEN discNonFedCounts.counts IS NULL
+            THEN 0
+        ELSE discNonFedCounts.counts
+    END discNonFedCounts
+FROM T_INVESTIGATION_TYPE invType
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY invType.C_NAME
+) favFedCounts ON favFedCounts.names = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.favorableClose'
+    GROUP BY invType.C_NAME
+) favNonFedCounts ON favNonFedCounts.names = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY invType.C_NAME
+) unfavFedCounts ON unfavFedCounts.names = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(adj.c_adjudication_decision_date) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(adj.c_adjudication_decision_date) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.unfavorableClose'
+    GROUP BY invType.C_NAME
+) unfavNonFedCounts ON unfavNonFedCounts.names = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.federal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY invType.C_NAME
+) discFedCounts ON discFedCounts.names = invType.C_NAME
+LEFT JOIN (
+    SELECT invType.C_NAME names, COUNT(*) counts
+    FROM T_CASE ca
+    JOIN T_INVESTIGATION_TYPE invType ON invType.ID = ca.C_INVESTIGATION_TYPE
+    LEFT JOIN T_APPLICANT_TYPE aptype ON aptype.ID = ca.C_APPLICANT_TYPE
+    JOIN T_RF_STATE rf ON rf.ID = ca.C_STATUS
+    LEFT JOIN T_ADJUDICATION adj ON adj.ID_PARENT = ca.ID
+    JOIN T_WORKFLOW_HISTORY wh ON wh.ID_PARENT = ca.ID AND wh.C_TO_STATUS = rf.ID
+    WHERE aptype.c_metrics_report_designation = (
+        SELECT ID
+        FROM T_FED_OR_NON_FED_TYPE
+        WHERE C_CODE = 'fonf.nonFederal'
+    )
+    AND TRUNC(wh.c_created_on) >= TO_DATE($P{startDate}, 'MM/dd/yyyy')
+    AND TRUNC(wh.c_created_on) <= TO_DATE($P{endDate}, 'MM/dd/yyyy')
+    AND rf.C_CODE = 'state.inactiveClosed'
+    GROUP BY invType.C_NAME
+) discNonFedCounts ON discNonFedCounts.names = invType.C_NAME
+ORDER BY invType.C_ORDER]]>
+		</queryString>
+		<field name="INVTYPE" class="java.lang.String"/>
+		<field name="FAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="FAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="UNFAVNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCFEDCOUNTS" class="java.math.BigDecimal"/>
+		<field name="DISCNONFEDCOUNTS" class="java.math.BigDecimal"/>
+		<variable name="total" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVFEDCOUNTS}.add($F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS})]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="favNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="unfavNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+		<variable name="discNonFedTotal" class="java.math.BigDecimal" calculation="Sum">
+			<variableExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></variableExpression>
+			<initialValueExpression><![CDATA[0]]></initialValueExpression>
+		</variable>
+	</subDataset>
+	<parameter name="startDate" class="java.lang.String"/>
+	<parameter name="endDate" class="java.lang.String">
+		<parameterDescription><![CDATA[]]></parameterDescription>
+	</parameter>
+	<queryString language="SQL">
+		<![CDATA[SELECT
+  	TO_CHAR(SYSDATE, 'MM/DD/YYYY') AS mmddyyyy,
+  	TO_CHAR(SYSDATE, 'MON DD, YYYY') AS mmmddyyyy,
+  	f.content AS logo,
+  	$P{startDate} AS startDate,
+    $P{endDate} AS endDate
+  FROM T_SYSTEM_CONFIGURATION sc
+  JOIN ETK_FILE f ON f.ID = sc.C_FILE
+  WHERE sc.C_CODE = 'code.reportLogo']]>
+	</queryString>
+	<field name="MMDDYYYY" class="java.lang.String"/>
+	<field name="MMMDDYYYY" class="java.lang.String"/>
+	<field name="LOGO" class="java.io.InputStream"/>
+	<field name="STARTDATE" class="java.lang.String"/>
+	<field name="ENDDATE" class="java.lang.String"/>
+	<variable name="V_CURRENT_PAGE_NUMBER" class="java.lang.Integer" resetType="Page">
+		<variableExpression><![CDATA[1]]></variableExpression>
+		<initialValueExpression><![CDATA[$V{PAGE_NUMBER} + 1]]></initialValueExpression>
+	</variable>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="150" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+			<staticText>
+				<reportElement x="0" y="0" width="370" height="32" uuid="ba7058a3-1a0e-4832-a362-ec38e17736aa">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font fontName="SansSerif" size="20"/>
+				</textElement>
+				<text><![CDATA[EPA Personnel Security Branch]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="32" width="370" height="32" uuid="a9446068-9f3d-4dd5-b435-9b0f59397653"/>
+				<textElement>
+					<font fontName="SansSerif" size="20"/>
+				</textElement>
+				<text><![CDATA[Metrics Report]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="64" width="170" height="19" uuid="cb8561f2-f797-4339-9418-9e7937167c91"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<text><![CDATA[Report Date:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="64" width="100" height="19" uuid="4639281c-1e07-4a69-9d3a-d6d7323e8136"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MMDDYYYY}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="102" width="170" height="19" uuid="5cdd86df-cbfc-48f5-8b59-ac1bad71b375"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<text><![CDATA[End Date:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="83" width="170" height="19" uuid="a0fa824f-0e66-4262-95ee-ab0cd5142bd6"/>
+				<textElement>
+					<font fontName="SansSerif" size="11"/>
+				</textElement>
+				<text><![CDATA[Start Date:]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="170" y="102" width="100" height="19" uuid="f328c72c-1146-4b74-add7-779b284c4889"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="170" y="83" width="100" height="19" uuid="15d08b5d-15fa-47d2-90c6-e07b90e6222d"/>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{startDate} == null ? "" : $P{startDate}]]></textFieldExpression>
+			</textField>
+			<image>
+				<reportElement x="459" y="0" width="100" height="100" uuid="5c564f7b-c013-4bf7-8206-f105e99825cf">
+					<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+				</reportElement>
+				<imageExpression><![CDATA[$F{LOGO}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<detail>
+		<band height="390">
+			<frame>
+				<reportElement positionType="Float" x="0" y="130" width="559" height="100" uuid="7e6e88b0-27cf-4875-b341-e3eda017eb43"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="559" height="30" uuid="8d0e27cb-6bd2-473d-a8e2-7b5a2ee84a74"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[New Cases by Applicant Type for the Reporting Period]]></text>
+				</staticText>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="30" width="559" height="70" uuid="7dc7259e-506e-4ae4-880f-f61b6765f43f">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="NewCasesByApplicantType" uuid="ba1dd1ec-9a8e-4ac0-a4c9-44612b816afa">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="355" uuid="71bbc9ea-78af-4c83-9573-dc1aec2a6ec8">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="355" height="20" uuid="a5fa9537-b1dd-4142-aef7-a83eec2762a2"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="355" height="30" forecolor="#FFFFFF" uuid="471ab3f2-ac14-47f2-a657-f0e9cf51c8f0"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Applicant Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="355" height="20" uuid="a928a9a7-2bc5-4298-8dbb-d7fb76f46cf8"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{APPLICANTTYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="204" uuid="82f8366a-04b9-4363-90ba-143fc50cec2e">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<box>
+									<topPen lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement key="" x="0" y="0" width="204" height="20" uuid="53356619-cadb-44f0-9f46-409c76ee69ef"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="204" height="30" forecolor="#FFFFFF" uuid="e89a3bc6-acd6-4552-85be-69cd81e47e28"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[New Applicants]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="204" height="20" uuid="94ed3fe5-a7a1-44be-a898-50f9504b05e7"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{COUNT}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="260" width="559" height="100" uuid="e9e64855-18c1-4c29-bc76-44dff9b2b857"/>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="559" height="30" uuid="c252fdb5-2909-415e-b69f-dd7a0ffbe01a"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[New Cases by Investigation Type for the Reporting Period]]></text>
+				</staticText>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="30" width="559" height="70" uuid="a4d70e5c-dc5e-4679-be70-7ebf5f1c47f2">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="NewCasesByInvestigationType" uuid="95efaab7-7fc5-4130-aac7-068fc91fb4c3">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="228" uuid="2c4d1f8a-9924-4cf3-886e-d478cb691519">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<staticText>
+									<reportElement x="0" y="0" width="228" height="30" forecolor="#FFFFFF" uuid="04b111e5-39e2-4e44-83bb-73bc81f64634"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Investigation Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<staticText>
+									<reportElement x="0" y="0" width="228" height="20" uuid="d62228f1-716f-4805-8c10-3129596c20e2"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="228" height="20" uuid="14295093-0063-4f5c-bb46-3f8cf2d5bcf9"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{INVTYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="104" uuid="26fc6111-24f1-4025-aaf6-b43e973d31e6">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<staticText>
+									<reportElement x="0" y="0" width="104" height="30" forecolor="#FFFFFF" uuid="f9baffd5-e47a-4449-b769-d963ec5e21be"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="104" height="20" uuid="7b5d544c-34f7-4307-b80e-118525f9efda"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{fedTotal}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="104" height="20" uuid="e4e74a2b-8ac6-4cf3-8d31-400f4b9d1814"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{FEDCOUNTS}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="130" uuid="1dc6b411-a107-4f2c-bb4a-0e9a47be1443">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="30" forecolor="#FFFFFF" uuid="46ec47b2-fb60-4a7a-866d-82eb5ef8ce1b"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Non-Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="80723ae9-1fa5-46b9-9949-8ea5a187f9e3"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{nonFedTotal}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="614a4ed9-2bab-4c56-a8a8-48dea1b28fb2"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{NONFEDCOUNTS}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="97" uuid="64016143-aaf7-4b9c-8e42-e6974f721535">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<staticText>
+									<reportElement x="0" y="0" width="97" height="30" forecolor="#FFFFFF" uuid="21736b68-d8a2-415f-8679-edc8c86589b2"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="97" height="20" uuid="817dd27c-18f7-47f4-8b26-23b98fc9d5f9"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="97" height="20" uuid="cfad2198-5b28-4c7c-8d4a-6bf89044aa4f"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FEDCOUNTS}.add($F{NONFEDCOUNTS})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+			</frame>
+			<frame>
+				<reportElement x="0" y="0" width="559" height="100" uuid="af25387e-a68c-4dec-a4dc-96956d193d92"/>
+				<componentElement>
+					<reportElement x="0" y="30" width="559" height="70" uuid="b2d0f6ff-7804-4c15-92fd-f5f4f93ff640">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="NewCasesByCaseType" uuid="4f6231d8-4597-44df-9cea-31159e7a5acc">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="228" uuid="4c80e896-74c6-41ab-a99b-3fee4d3d4b14">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="228" height="30" forecolor="#FFFFFF" uuid="a3f502ca-3815-4c60-b2e5-b0fa43312c22"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Case Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="228" height="20" uuid="f511bdac-c318-4711-9f5f-e0f8c78f60fa"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="228" height="20" uuid="ccd5ca5b-27d7-4cc9-96a1-9a3deb003eb3"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{CASETYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="104" uuid="4b051343-221c-4cdb-a991-0f47af122680">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="104" height="30" forecolor="#FFFFFF" uuid="ecf106df-27f8-4cf3-b0f8-27dcb8407ef8"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="104" height="20" uuid="8bfa9333-c208-46ca-a0cf-59d499ad91a8"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{fedTotal}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="104" height="20" uuid="d3300206-5b75-419e-9f36-f859f7e39626"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{FEDCOUNTS}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="130" uuid="825da17f-08db-401a-9518-f569c26afdb6">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="30" forecolor="#FFFFFF" uuid="787b7fa2-2398-4d0d-a25b-61c7e493aed3"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Non-Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="8290b4fe-b32e-4854-8257-573cc77ba420"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{nonFedTotal}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="8fe94aa2-650b-4097-8d8e-03189c37fdb8"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{NONFEDCOUNTS}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:column width="97" uuid="736ee656-dce9-4879-832b-8f55f7cb9806">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="97" height="30" forecolor="#FFFFFF" uuid="f1b95918-7ae2-425d-bffc-a6c83a084317"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:columnFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="97" height="20" uuid="eeabe9ae-f46f-450f-8f8b-ff6a64b9c8b1"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:columnFooter>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="97" height="20" uuid="8538a379-2c97-424d-954e-46661d78296c"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FEDCOUNTS}.add($F{NONFEDCOUNTS})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement x="0" y="0" width="559" height="30" uuid="f38679d4-64c8-45ea-86d4-7b84bf383615"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[New Cases by Case Type for the Reporting Period]]></text>
+				</staticText>
+			</frame>
+		</band>
+		<band height="570">
+			<frame>
+				<reportElement x="0" y="0" width="559" height="120" uuid="ca952aaf-0775-45ce-b756-c1e8cc45aba7"/>
+				<componentElement>
+					<reportElement x="0" y="30" width="559" height="90" uuid="c09c0934-68c5-48c7-b08b-0b449b3160fc">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="ClearancesGrantedDenied" uuid="514c9a61-f6c8-431a-aa53-706f1af42074">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="100" uuid="917b4449-8890-4c5f-b6c4-20ea62a7f68a">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="20" uuid="a20170f2-87ed-4394-9476-04c1e89f8a60"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="100" height="50" forecolor="#FFFFFF" uuid="fa2be448-0099-4fa9-a310-ce3d6a850c6f"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Clearance Level]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="100" height="20" uuid="f027ce4e-a46f-47b3-aa02-0a1918ca4cff"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{CLEARNCELEVEL}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:columnGroup width="194" uuid="fbf23ea3-008d-49b8-85f9-2125fbf25d23">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="194" height="20" forecolor="#FFFFFF" uuid="521170b4-b4a3-4b55-b2ca-10b160252282"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="60" uuid="480ab316-4102-42ff-b795-dfe82a5fafed">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="47db6ed2-c403-4cf0-9f52-55c6e8f4afab"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{fedInterimTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="60" height="30" forecolor="#FFFFFF" uuid="1fc900f7-a850-4880-b307-588e505fc6c5"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Interim]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="81ed4b0b-16b2-4be6-96ea-92f509b7a909"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{fedInterimCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="0fe98c31-3cac-496d-b021-5c4e6b1becbd">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="e054ea3c-3853-4cec-a99e-4a9aff87da83"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{fedDeniedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="2a9e3f8d-f0ed-43f5-beab-b955ec9df760"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Denied]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="3baec674-5ffa-4602-8038-dcd7bc5a6ef6"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{fedDeniedCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="60" uuid="273515e6-4914-42a8-80ab-cd5b8c98bacb">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="4c4b7f2e-da2f-4f43-b10c-9537bd57f9c7"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{fedFinalTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="60" height="30" forecolor="#FFFFFF" uuid="e3241aa3-3ba0-4856-a397-942a8e81c75f"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Final]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="ce65f4a9-5993-4bcf-a63e-9dd1342c01cf"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{fedFinalCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="208" uuid="eb4df231-67bc-468c-a7e9-7db6554955d9">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [3]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="208" height="20" forecolor="#FFFFFF" uuid="b9d52f99-9915-4440-b4e3-dcd51cfe92e2"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Non-Federal]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="74" uuid="b2c46fe7-9624-4f51-9161-fa2c3b7f137f">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="04ae369d-be46-491b-8692-4f2cb34548dc"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{nonFedInterimTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="8cd0ee0e-b301-4655-807b-7da17e03219a"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Interim]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="645858bd-38f2-4bf6-8ed3-51ce899d25c8"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{nonFedInterimCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="60" uuid="bac30b0d-02e6-4f9f-8834-e460a49b9ca9">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="709fbeb8-22be-4434-8cf3-d79c07a73ca0"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{nonFedDeniedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="60" height="30" forecolor="#FFFFFF" uuid="2e5819c3-ea25-4ef5-ab50-522efb234c3d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Denied]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="60" height="20" uuid="baba94f9-6a8f-4399-a0f0-db43a0a65b04"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{nonFedDeniedCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="9f86a91f-f526-4a1f-90ec-eec2ffaf0861">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="7d284f5b-ecc6-4ada-8af9-8edbad24667f"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{nonFedFinalTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="e07132dd-aaec-4228-a868-69c0c6fb2bc3"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Final]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="3e640c57-b757-46f6-a5e9-1c05368ea0f9"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{nonFedFinalCount}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:column width="57" uuid="a4de45ff-5d58-4d88-801f-9d5d28ec72df">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="b74e2445-9239-45b8-94bb-f9561d38d776"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="57" height="50" forecolor="#FFFFFF" uuid="de0141ac-fe5c-450b-a3e2-ef38f4698d46"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="58ae3a16-4311-409e-8d7f-294e44958a27"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{fedInterimCount}.add($F{fedDeniedCount}).add($F{fedFinalCount}).add($F{nonFedInterimCount}).add($F{nonFedDeniedCount}).add($F{nonFedFinalCount})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement x="0" y="0" width="559" height="30" uuid="6d0cd798-262f-4184-8a81-f6fa3ceb94f6"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Clearances Granted/Denied for the Reporting Period]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="150" width="559" height="120" uuid="000b67e6-096a-40c9-9767-8e84e24faaad"/>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="30" width="559" height="90" uuid="325f4e9a-ea84-4661-90dd-2a5fe1015a71">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="CaseTypesEnteringClosedState" uuid="8f361e37-d1dd-4a95-abf3-671bf6d6b92b">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="130" uuid="11f40208-d3a5-47ea-9dc1-f3f24acfb377">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="20" uuid="2dec44e4-423d-45c7-9538-a3cbe87bc733"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="50" forecolor="#FFFFFF" uuid="544baf66-4c1d-48df-841d-f95ba6b7b27a"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Case Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="c1122b4e-f8cb-4de6-9284-b58f81e3c51c"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{CASETYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:columnGroup width="124" uuid="ec93e198-f951-42e8-b402-4799aa1c33ed">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="d25097c5-b135-47d0-953c-8ddc2abda694"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Favorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="6540f137-86d6-4cca-b675-d385ab4efef4">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="774c307c-5d53-4332-8bdd-63c8336d8b35"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="3b63d020-a05f-4829-804f-71f0d85a46d6"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="d009566e-2a53-427b-8071-ef1edb3ac933"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="4807b65e-8115-436e-9364-7752353cdf2d">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="485729af-b962-47a9-b5e4-e324fa02776f"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="5be50d2c-6daf-40a2-a6a6-88e8d32c92e6"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="b99b12f8-f02a-40da-9844-d19c47ae5cc3"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="ade97942-00d1-4106-b4a7-6f7d12cef642">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="d088eecf-13cd-4601-a109-3641b1678ead"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Unfavorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="e98b55b1-9158-4f4c-9f96-7475ba3ea69e">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="70c19a8f-fcb8-4607-89c0-c7e8d2df9c71"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="7945161a-24dd-47d2-a4e0-fd3445ca9a3e"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="f1e2ad5a-2e1d-4247-9ac3-7cde09acca49"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="05c3334d-1da4-4f82-bae8-a82176b1d0f4">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="737f151e-0946-48d5-abdb-fd57fba6808b"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="d6dbfe7a-0e58-498a-8931-4c202e79dcc5"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="14839995-881c-4027-86e6-8cc00129c39d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="6450ca3c-fd4b-462f-b601-5b10058cf928">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="23afd29b-4aef-4803-b110-765459579f31"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Discontinued]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="453e8e46-fab1-4d0c-82dd-3db81ffc7bda">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="66aedfeb-6720-492c-96df-2fe0c32f9a7d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="3d01692d-4971-4919-9fe1-12a4c4f19a97"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="e58bca30-866b-4abc-a70b-7f4105c71a06"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="42b1529d-0786-4ada-8f2a-9d4f6642a1b5">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="867e3254-73f4-48a0-bac3-15385deea518"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="8a792e57-152e-481e-ac61-eb2ddba0ae0b"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="ad211511-4c03-43fc-a4ae-95f6fa6a3e80"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:column width="57" uuid="8c6508f0-052c-4bf2-b97e-67bf9d1e2584">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="597d3ac5-d327-47ec-932b-936eb1ee75b4"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="57" height="50" forecolor="#FFFFFF" uuid="4b092a34-1dc4-4e38-852b-0779cdb2b185"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="2299ae4c-9fd1-4b39-9cf1-a82b5bd39c99"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FAVFEDCOUNTS}.add($F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="559" height="30" uuid="a1151b87-b308-481c-aff5-5f11e196c09c"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Number of Case Types Entering Closed States for the Reporting Period]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="300" width="559" height="120" uuid="48e6abde-4bbe-4a12-a477-acfab8475edb"/>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="30" width="559" height="90" uuid="99302faf-2d6a-4102-be05-2bfe9ac39ef3">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="ApplicantTypesEnteringClosedState" uuid="839ec9a3-4a02-4c95-829b-d1ecdb881334">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="130" uuid="c1313b4f-c7fb-4209-81dc-827e6c646e0a">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="20" uuid="6e59d376-4538-4e8e-95bb-b6c3c4cfd362"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="50" forecolor="#FFFFFF" uuid="d4d7c30d-3036-469c-9983-3c4eaa8f41da"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Applicant Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="e8610ebc-52e1-45c9-9be6-de426db8ae8d"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{APPTYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:columnGroup width="124" uuid="5c10043c-e44c-415e-a2aa-3c57a460454d">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="49b8e28f-e1ea-4052-9d7f-bf98447fc7fb"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Favorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="76f0cf77-859c-403b-ba3d-65232a586bfe">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="e10a8b63-0108-48d1-bdfa-fcb8e81d085b"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="85f8b362-50c8-4756-b864-e9776046aae1"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="b26fc1ce-d23f-42c9-ad32-b181ed97c825"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="be171456-5241-49f9-8730-3ffa712fa8d5">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="c71a7224-8e0f-4e47-b19a-0db997859d8f"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="a166a44b-b5ea-4a28-83c1-4ce0108a915f"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="0afb5798-da97-4b27-bace-b8660d56e408"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="b2c61dd6-3589-4f0a-8aa5-0a5d4f1e968a">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="73a2dbac-4a36-43b4-8c4e-de88c7c7c996"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Unfavorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="f84a1ad2-e1e6-49fa-a995-f1879d6598bf">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="b2762849-b897-48f4-ba45-2fe658c81a9b"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="37ebddd5-2cec-4cea-b8da-2d13c04cb97c"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="170c4331-9562-47db-9a9b-d7c5b2f2ed50"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="7082ae9f-ccb6-4c7e-aeed-8887e5f9a8af">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="6d1ac3bd-b0da-4044-955a-861a6c0df705"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="95490118-3928-445a-a6fe-c4e1156be144"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="02c29f00-3ffe-4315-9040-84c562db3927"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="42258a7c-6a8e-4c1e-95ca-407e729b56c1">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="c643fe34-d169-4534-93f8-e1e496526f88"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Discontinued]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="19b007ef-3cce-42ce-b9ea-ccfb6ea64442">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="f699e7ca-65af-45e1-a602-cc6579725123"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="df744add-9c5e-487f-a2db-adf6ddc7a219"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="ba87c921-87c8-498d-91e4-e7c6c14c2436"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="ec0c0594-0176-4c5e-bfe1-71f83a3f2b94">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="87288e6a-0049-4afe-9d31-11ae3c70c7e0"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="89aee5bb-4936-4b38-940c-9d6df399af69"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="92531483-a187-4b19-ad16-dac2663ecabc"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:column width="57" uuid="b305b978-5132-43ae-b839-8f8e05abe8d6">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="fe24ef4a-b694-4a47-a3c7-82ee9bbf4986"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="57" height="50" forecolor="#FFFFFF" uuid="887d9119-9d56-40db-a22a-0b1863a0ae7a"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<box>
+									<topPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.5" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="2e60fcda-0f17-48de-bbaa-75bb31ff981a"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[new BigDecimal($F{FAVFEDCOUNTS} == null ? 0 : $F{FAVFEDCOUNTS}.intValue()).add($F{FAVNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS} == null ? BigDecimal.ZERO : $F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS} == null ? BigDecimal.ZERO : $F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS} == null ? BigDecimal.ZERO : $F{DISCNONFEDCOUNTS})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="559" height="30" uuid="a6ef6f80-e5b6-4178-b8b5-9f804af7962c"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Number of Applicant Types Entering Closed States for the Reporting Period]]></text>
+				</staticText>
+			</frame>
+			<frame>
+				<reportElement positionType="Float" x="0" y="450" width="559" height="120" uuid="a62f5f7d-8a59-4dd7-a7da-a4c719d40874"/>
+				<componentElement>
+					<reportElement positionType="Float" x="0" y="30" width="559" height="90" uuid="705659f4-1a2e-4078-9f5b-d4ea904bc9de">
+						<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+						<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+						<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+						<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+						<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+						<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+					</reportElement>
+					<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+						<datasetRun subDataset="InvTypesEnteringClosedState" uuid="39796236-ef9c-4850-9358-96e776323456">
+							<datasetParameter name="startDate">
+								<datasetParameterExpression><![CDATA[$P{startDate} == null ? "07/04/1776" : $P{startDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<datasetParameter name="endDate">
+								<datasetParameterExpression><![CDATA[$P{endDate} == null ? $F{MMDDYYYY} : $P{endDate}]]></datasetParameterExpression>
+							</datasetParameter>
+							<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+						</datasetRun>
+						<jr:column width="130" uuid="a1249d3c-3aea-4085-9c64-20608dd25883">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="20" uuid="61ae2b08-8bc0-474b-95d7-f19a6ad8a0fc"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="130" height="50" forecolor="#FFFFFF" uuid="acaa02a9-2243-400d-b190-9711ae3a69a4"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Investigation Type]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="130" height="20" uuid="35f58271-a98a-4b38-a578-b1a45981fc92"/>
+									<box leftPadding="5">
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Left" verticalAlignment="Middle"/>
+									<textFieldExpression><![CDATA[$F{INVTYPE}]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+						<jr:columnGroup width="124" uuid="ac82fe04-1b01-44e9-a00c-bd870939c46c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="786bd77f-4f16-4037-81c7-42a38d794bf4"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Favorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="9b770f38-c004-4c67-9a52-e2c94f5a1049">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column2"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="fc1d367f-3b6d-4c8f-bee9-85e9e3ea164a"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="30eb8432-6fb1-497f-b15e-d6eb27ab1490"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="0bee2f85-e43e-4248-827b-d615f3a9aca4"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="675e18af-21df-48b1-b070-4eebb0c3720d">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="c84788e6-d148-49ab-9c31-ebac0db8a8c1"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{favNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="14609a15-d9b5-4121-953c-e7d26bd62126"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="fe22d4dc-ed82-40cf-b600-d2ba44f38779"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{FAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="64383678-59e0-4e7c-9b6a-8fd28500403c">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="ce85b3e1-ad55-4deb-b296-e185bd7090cd"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Unfavorable]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="fd1fa0b3-2da9-40eb-9c5a-7ecbddd63de5">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="46ac77e8-f115-45f2-8b5e-72c7a603daaf"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="915724d6-ff24-4551-afa8-57b83fa52e46"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="d8817acf-a9e5-4df8-9868-94dfb2b70787"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="a0930828-a3da-447b-a5fb-85795aa6b2ad">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="3dd66d46-18e0-4a6f-babf-4efd5533904d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{unfavNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="27e7c592-c323-4f1f-8013-542644ca9f9d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="c8ba49c5-76f7-479c-a806-6150216a5d3d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{UNFAVNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:columnGroup width="124" uuid="1555d158-28c6-4e00-a06f-8a425c5de938">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Columns [2]"/>
+							<jr:columnHeader style="Table_CH" height="20" rowSpan="2">
+								<staticText>
+									<reportElement x="0" y="0" width="124" height="20" forecolor="#FFFFFF" uuid="c813784a-5170-40fa-ba1d-de1260cdec83"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Discontinued]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:column width="50" uuid="c23aea37-1042-407e-9799-bf94760ecff4">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="574b8034-0dd6-48c5-a36b-c9742b852573"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="50" height="30" forecolor="#FFFFFF" uuid="eb7aa8d1-f6d9-4c2a-81b8-bfa54394d6a9"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="50" height="20" uuid="9c8096c3-0518-451f-be54-c35b3383f804"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+							<jr:column width="74" uuid="2dafcba2-d964-474a-ac46-5efc86ae75ea">
+								<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column7"/>
+								<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+								<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="b671554e-8a27-429e-9fa8-9ba2d3ea1884"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font isBold="true"/>
+										</textElement>
+										<textFieldExpression><![CDATA[$V{discNonFedTotal}]]></textFieldExpression>
+									</textField>
+								</jr:tableFooter>
+								<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<staticText>
+										<reportElement x="0" y="0" width="74" height="30" forecolor="#FFFFFF" uuid="42919218-f62e-41f3-bade-fc3b8b222c3d"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle">
+											<font size="11" isBold="true" isItalic="false"/>
+										</textElement>
+										<text><![CDATA[Non-Federal]]></text>
+									</staticText>
+								</jr:columnHeader>
+								<jr:detailCell style="Table_TD" height="20">
+									<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+										<reportElement x="0" y="0" width="74" height="20" uuid="82564fd8-ad6b-460f-aa3e-58c1877a1b62"/>
+										<box>
+											<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+											<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										</box>
+										<textElement textAlignment="Center" verticalAlignment="Middle"/>
+										<textFieldExpression><![CDATA[$F{DISCNONFEDCOUNTS}]]></textFieldExpression>
+									</textField>
+								</jr:detailCell>
+							</jr:column>
+						</jr:columnGroup>
+						<jr:column width="57" uuid="3817cb4d-b2d8-4219-9b90-c4e686b338e6">
+							<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column8"/>
+							<property name="com.jaspersoft.studio.unit.width" value="pixel"/>
+							<jr:tableFooter style="Table_TD" height="20" rowSpan="1">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="2400124f-deff-4eed-a108-95b0b1a337e8"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$V{total}]]></textFieldExpression>
+								</textField>
+							</jr:tableFooter>
+							<jr:columnHeader style="Table_CH" height="50" rowSpan="1">
+								<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								<staticText>
+									<reportElement x="0" y="0" width="57" height="50" forecolor="#FFFFFF" uuid="1a53799d-0405-48c9-b9d8-144350c8c775"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font size="11" isBold="true" isItalic="false"/>
+									</textElement>
+									<text><![CDATA[Total]]></text>
+								</staticText>
+							</jr:columnHeader>
+							<jr:detailCell style="Table_TD" height="20">
+								<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+									<reportElement x="0" y="0" width="57" height="20" uuid="0442b2f4-373c-4964-a223-b6e2d7398f2c"/>
+									<box>
+										<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+										<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									</box>
+									<textElement textAlignment="Center" verticalAlignment="Middle">
+										<font isBold="true"/>
+									</textElement>
+									<textFieldExpression><![CDATA[$F{FAVFEDCOUNTS}.add($F{FAVNONFEDCOUNTS}).add($F{UNFAVFEDCOUNTS}).add($F{UNFAVNONFEDCOUNTS}).add($F{DISCFEDCOUNTS}).add($F{DISCNONFEDCOUNTS})]]></textFieldExpression>
+								</textField>
+							</jr:detailCell>
+						</jr:column>
+					</jr:table>
+				</componentElement>
+				<staticText>
+					<reportElement positionType="Float" x="0" y="0" width="559" height="30" uuid="fbd8dcc0-5b5a-484d-a83d-96a3338cc0a5"/>
+					<textElement>
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Number of Investigation Types Entering Closed States for the Reporting Period]]></text>
+				</staticText>
+			</frame>
+		</band>
+	</detail>
+	<pageFooter>
+		<band height="20" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="190" height="20" forecolor="#999999" uuid="a9592c50-7119-404b-8823-a7a6ca7ce753">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement>
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA["DATE: " + $F{MMMDDYYYY}]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Auto" isBlankWhenNull="true">
+				<reportElement x="443" y="0" width="116" height="20" forecolor="#999999" uuid="08e46af2-e269-444d-9e32-3851ff459fc0">
+					<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+				</reportElement>
+				<textElement textAlignment="Right">
+					<font size="11"/>
+				</textElement>
+				<textFieldExpression><![CDATA[msg("PAGE {0} OF {1}", $V{V_CURRENT_PAGE_NUMBER}, $V{PAGE_NUMBER})]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>
