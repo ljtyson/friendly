@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"  ?>
+<!-- Created with iReport - A designer for JasperReports -->
+<!DOCTYPE jasperReport PUBLIC "//JasperReports//DTD Report Design//EN" "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+<jasperReport
+		 name="ReportExecutionFailure"
+		 columnCount="1"
+		 printOrder="Vertical"
+		 orientation="Landscape"
+		 pageWidth="595"
+		 pageHeight="20"
+		 columnWidth="595"
+		 columnSpacing="0"
+		 leftMargin="0"
+		 rightMargin="0"
+		 topMargin="0"
+		 bottomMargin="0"
+		 whenNoDataType="AllSectionsNoDetail"
+		 isTitleNewPage="false"
+		 isSummaryNewPage="false">
+	<property name="ireport.scriptlethandling" value="0" />
+	<property name="ireport.encoding" value="UTF-8" />
+	<import value="java.util.*" />
+	<import value="net.sf.jasperreports.engine.*" />
+	<import value="net.sf.jasperreports.engine.data.*" />
+
+	<style 
+		name="Arial_Bold"
+		isDefault="false"
+		mode="Opaque"
+		forecolor="#FF0000"
+		hAlign="Center"
+		vAlign="Middle"
+		fontName="Arial"
+		isBold="true"
+		pdfFontName="Helvetica-Bold"
+		isPdfEmbedded="true"
+	/>
+
+	<parameter name="id" isForPrompting="false" class="java.lang.String">
+		<parameterDescription><![CDATA[Sub-report id.]]></parameterDescription>
+	</parameter>
+	
+    <parameter name="reportName" isForPrompting="false" class="java.lang.String">
+        <parameterDescription><![CDATA[Report Name]]></parameterDescription>
+    </parameter>	
+
+		<background>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</background>
+		<title>
+			<band height="20"  isSplitAllowed="true" >
+				<textField isStretchWithOverflow="false" isBlankWhenNull="false" evaluationTime="Now" hyperlinkType="None"  hyperlinkTarget="Self" >
+					<reportElement
+						style="Arial_Bold"
+						mode="Transparent"
+						x="0"
+						y="0"
+						width="595"
+						height="20"
+						key="errorField"
+						isPrintRepeatedValues="false"/>
+					<box topBorder="Thin" topBorderColor="#CCCCCC" topPadding="2" leftBorder="Thin" leftBorderColor="#CCCCCC" leftPadding="2" rightBorder="Thin" rightBorderColor="#CCCCCC" rightPadding="2" bottomBorder="Thin" bottomBorderColor="#CCCCCC" bottomPadding="2"/>
+					<textElement>
+						<font/>
+					</textElement>
+				<textFieldExpression   class="java.lang.String"><![CDATA["ERROR: There was a problem while executing report named " + $P{reportName}]]></textFieldExpression>
+				</textField>
+			</band>
+		</title>
+		<pageHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageHeader>
+		<columnHeader>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnHeader>
+		<detail>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</detail>
+		<columnFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</columnFooter>
+		<pageFooter>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</pageFooter>
+		<summary>
+			<band height="0"  isSplitAllowed="true" >
+			</band>
+		</summary>
+</jasperReport>
