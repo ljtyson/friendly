@@ -1,6 +1,3 @@
-package com.epa.dashboard.reports.excel;
-
-
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.ss.usermodel.*;
@@ -9,6 +6,7 @@ import org.apache.poi.ss.util.RegionUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 
 import java.time.LocalDate;
@@ -28,23 +26,28 @@ public class PayReport {
 	 */ 
 	private static final String REPORT_SQL = "SELECT * FROM BOX";
 
-	public static FileResponse exportToExcel() throws IOException {
+	public static FileReader exportToExcel() throws IOException {
 		ByteArrayOutputStream bos = generateReport();
 		String todayDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String fileName = String.format("%s_%s.xls", REPORT_TITLE, todayDate);
 		return createFileResponse(fileName, new ByteArrayInputStream(bos.toByteArray()));
 	}
 
+	private static FileReader createFileResponse(String fileName, ByteArrayInputStream byteArrayInputStream) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+ 
 	public static ByteArrayOutputStream generateReport() throws IOException {
 		/* Create an Excel workbook */ 
 		try (HSSFWorkbook workbook = new HSSFWorkbook()) {
 			/* Create a sheet in the workbook */ 
 			HSSFSheet reportSheet = workbook.createSheet("Pay Report");
-			List<Map<String, Object>> reportData = createSQL(REPORT_SQL)
-			.setParameter("loggedInUserId", getCurrentUser().getId())
-			.fetchList();
+			List<Map<String, Object>> reportData = null;
+			//= createSQL(REPORT_SQL).fetchList();  
+
 			/* Write the data to the sheet */ 
-			writeData(reportSheet, reportData, 0);
+			writeData(reportSheet, reportData, 0); 
 			if (reportSheet.getLastRowNum() > 1 && reportSheet.getRow(reportSheet.getFirstRowNum()) != null) {
 				CellRangeAddress reportRegion = new CellRangeAddress(
 					1, 
@@ -62,6 +65,11 @@ public class PayReport {
 			workbook.write(bos);
 			return bos;
 		}
+	}
+
+	private static String createSQL(String reportSql) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/** * Apply styling to the first row (header). */
