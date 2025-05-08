@@ -5,6 +5,8 @@
   <property name="web.dir" value="war"/>
   <property name="build.dir" value="${web.dir}/WEB-INF/classes"/>
   <property name="name" value="springapp"/>
+  <property name="test.dir" value="test"/>
+  
   <path id="master-classpath">
     <fileset dir="${web.dir}/WEB-INF/lib">
       <include name="*.jar"/>
@@ -17,6 +19,33 @@
     </fileset>
     <pathelement path="${build.dir}"/>
   </path>
+  <target name="buildtests" description="Compile test tree java files">
+	<mkdir dir="${build.dir}"/>
+	<javac destdir="${build.dir}" source="8" target="8" debug="true" deprecation="false" optimize="false" failonerror="true">
+	  <src path="${test.dir}"/>
+	  <classpath refid="master-classpath"/>
+	</javac>
+  </target>
+  <target name="tests" depends="build, buildtests" description="Run tests">
+    <junit printsummary="on" fork="false" haltonfailure="false" failureproperty="tests.failed"
+	  showoutput="true">
+	  <classpath refid="master-classpath"/>
+	  <formatter type="brief" usefile="false"/>
+	  <batchtest>
+		<fileset dir="${build.dir}">
+		  <include name="**/*Test.java"/>
+		</fileset>
+	  </batchtest>
+	</junit>
+	<fail if="tests.failed">
+	tests.failed=${tests.failed}
+	********************************************************************************
+	********************************************************************************
+	*** TESTS FAILED! There were test failures. Check the output above. ***
+	********************************************************************************
+	********************************************************************************
+	</fail>
+	</target>
   <target name="usage">
     <echo message=""/>
     <echo message="${name} build file"/>
@@ -36,7 +65,7 @@
   </target>
   <target name="build" description="Compile main source tree java files">
     <mkdir dir="${build.dir}"/>
-    <javac destdir="${build.dir}" source="1.5" target="1.5" debug="true" deprecation="false" optimize="false" failonerror="true">
+    <javac destdir="${build.dir}" source="8" target="8" debug="true" deprecation="false" optimize="false" failonerror="true">
       <src path="${src.dir}"/>
       <classpath refid="master-classpath"/>
     </javac>
