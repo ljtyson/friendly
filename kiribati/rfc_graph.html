@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RFC Dependencies Graph</title>
+    <!-- <script src="d3/d3.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script> 
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        #graph {
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            background: #fafbfc;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .node circle {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover circle {
+            transform: scale(1.2);
+            filter: brightness(1.2);
+        }
+        
+        .node text {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        
+        .link {
+            fill: none;
+            stroke-width: 2;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+        }
+        
+        .link:hover {
+            stroke-width: 3;
+            opacity: 1;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            max-width: 300px;
+            line-height: 1.4;
+        }
+        
+        .legend {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+        }
+        
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RFC Dependencies and Relationships</h1>
+        <svg id="graph" width="1200" height="800"></svg>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3498db;"></div>
+                <span>Core Standards</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e74c3c;"></div>
+                <span>Web Protocols</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #2ecc71;"></div>
+                <span>Security</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #f39c12;"></div>
+                <span>Data Formats</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #9b59b6;"></div>
+                <span>Language/I18N</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #1abc9c;"></div>
+                <span>Directory/Identity</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #34495e;"></div>
+                <span>Email</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        const nodes = [
+            // Core Standards
+            {id: "RFC2119", title: "Key Words for RFCs", description: "Defines MUST, SHALL, SHOULD requirement levels", category: "core"},
+            {id: "RFC5234", title: "ABNF Syntax", description: "Augmented Backus-Naur Form for syntax specifications", category: "core"},
+            {id: "RFC5226", title: "IANA Guidelines", description: "Guidelines for Writing IANA Considerations", category: "core"},
+            {id: "RFC3553", title: "IETF Standard Process", description: "An IETF URN Sub-namespace for Registered Protocol Parameters", category: "core"},
+            {id: "RFC5741", title: "RFC Streams", description: "RFC Streams, Headers, and Boilerplates", category: "core"},
+            
+            // Web Protocols
+            {id: "RFC3986", title: "URI Syntax", description: "Uniform Resource Identifier Generic Syntax", category: "web"},
+            {id: "RFC7231", title: "HTTP/1.1 Semantics", description: "HTTP/1.1 Semantics and Content", category: "web"},
+            {id: "RFC7232", title: "HTTP/1.1 Conditional", description: "HTTP/1.1 Conditional Requests", category: "web"},
+            {id: "RFC6749", title: "OAuth 2.0", description: "OAuth 2.0 Authorization Framework", category: "web"},
+            {id: "RFC6819", title: "OAuth 2.0 Security", description: "OAuth 2.0 Threat Model and Security Considerations", category: "web"},
+            
+            // Security
+            {id: "RFC5280", title: "X.509 PKI", description: "Internet X.509 Public Key Infrastructure Certificate Profile", category: "security"},
+            {id: "RFC4648", title: "Base Encodings", description: "Base16, Base32, and Base64 Data Encodings", category: "security"},
+            
+            // Data Formats
+            {id: "RFC7159", title: "JSON", description: "JavaScript Object Notation Data Interchange Format", category: "data"},
+            {id: "RFC6350", title: "vCard 4.0", description: "vCard Format Specification", category: "data"},
+            
+            // Language/Internationalization
+            {id: "RFC5646", title: "Language Tags", description: "Tags for Identifying Languages", category: "i18n"},
+            {id: "RFC3629", title: "UTF-8", description: "UTF-8, a transformation format of ISO 10646", category: "i18n"},
+            {id: "RFC2277", title: "IETF I18N Policy", description: "IETF Policy on Character Sets and Languages", category: "i18n"},
+            {id: "RFC4647", title: "Language Matching", description: "Matching of Language Tags", category: "i18n"},
+            
+            // Directory/Identity
+            {id: "RFC4512", title: "LDAP Directory", description: "Lightweight Directory Access Protocol Directory Information Models", category: "directory"},
+            {id: "RFC7643", title: "SCIM Core Schema", description: "System for Cross-domain Identity Management Core Schema", category: "directory"},
+            {id: "RFC7644", title: "SCIM Protocol", description: "System for Cross-domain Identity Management Protocol", category: "directory"},
+            {id: "RFC2141", title: "URN Syntax", description: "URN Syntax", category: "directory"},
+            {id: "RFC6557", title: "LDAP Extensions", description: "Procedures for Maintaining the LDAP Schema Repositories", category: "directory"},
+            {id: "RFC3966", title: "tel URI", description: "The tel URI for Telephone Numbers", category: "directory"},
+            
+            // Email
+            {id: "RFC5321", title: "SMTP", description: "Simple Mail Transfer Protocol", category: "email"}
+        ];
+
+        const links = [
+            // Core dependencies
+            {source: "RFC5234", target: "RFC2119"}, // ABNF uses requirement keywords
+            {source: "RFC5741", target: "RFC2119"}, // RFC streams use requirement keywords
+            {source: "RFC3553", target: "RFC2119"}, // IETF process uses requirement keywords
+            
+            // Web protocol dependencies
+            {source: "RFC7231", target: "RFC3986"}, // HTTP uses URIs
+            {source: "RFC7232", target: "RFC7231"}, // HTTP conditional builds on HTTP semantics
+            {source: "RFC6749", target: "RFC3986"}, // OAuth uses URIs
+            {source: "RFC6819", target: "RFC6749"}, // OAuth security extends OAuth 2.0
+            {source: "RFC7231", target: "RFC2119"}, // HTTP uses requirement keywords
+            {source: "RFC6749", target: "RFC2119"}, // OAuth uses requirement keywords
+            
+            // Security dependencies
+            {source: "RFC5280", target: "RFC2119"}, // X.509 uses requirement keywords
+            {source: "RFC4648", target: "RFC2119"}, // Base encodings use requirement keywords
+            {source: "RFC6749", target: "RFC4648"}, // OAuth uses base64 encoding
+            
+            // Data format dependencies
+            {source: "RFC7159", target: "RFC2119"}, // JSON uses requirement keywords
+            {source: "RFC6350", target: "RFC2119"}, // vCard uses requirement keywords
+            {source: "RFC6350", target: "RFC3986"}, // vCard can contain URIs
+            
+            // I18N dependencies
+            {source: "RFC5646", target: "RFC2119"}, // Language tags use requirement keywords
+            {source: "RFC4647", target: "RFC5646"}, // Language matching uses language tags
+            {source: "RFC3629", target: "RFC2119"}, // UTF-8 uses requirement keywords
+            {source: "RFC2277", target: "RFC2119"}, // I18N policy uses requirement keywords
+            
+            // Directory dependencies
+            {source: "RFC4512", target: "RFC2119"}, // LDAP uses requirement keywords
+            {source: "RFC7643", target: "RFC2119"}, // SCIM schema uses requirement keywords
+            {source: "RFC7644", target: "RFC7643"}, // SCIM protocol uses SCIM schema
+            {source: "RFC7644", target: "RFC2119"}, // SCIM protocol uses requirement keywords
+            {source: "RFC2141", target: "RFC2119"}, // URN syntax uses requirement keywords
+            {source: "RFC6557", target: "RFC4512"}, // LDAP extensions build on LDAP
+            {source: "RFC3966", target: "RFC3986"}, // tel URI is a type of URI
+            {source: "RFC7643", target: "RFC5646"}, // SCIM uses language tags
+            
+            // Email dependencies
+            {source: "RFC5321", target: "RFC2119"}, // SMTP uses requirement keywords
+            {source: "RFC5321", target: "RFC5234"}, // SMTP uses ABNF syntax
+            
+            // Cross-category dependencies
+            {source: "RFC7231", target: "RFC5646"}, // HTTP uses language tags
+            {source: "RFC6350", target: "RFC5646"}, // vCard uses language tags
+            {source: "RFC4512", target: "RFC3629"}, // LDAP supports UTF-8
+        ];
+
+        const categoryColors = {
+            core: "#3498db",
+            web: "#e74c3c", 
+            security: "#2ecc71",
+            data: "#f39c12",
+            i18n: "#9b59b6",
+            directory: "#1abc9c",
+            email: "#34495e"
+        };
+
+        const svg = d3.select("#graph");
+        const width = +svg.attr("width");
+        const height = +svg.attr("height");
+        
+        const tooltip = d3.select("#tooltip");
+
+        const simulation = d3.forceSimulation(nodes)
+            .force("link", d3.forceLink(links).id(d => d.id).distance(120))
+            .force("charge", d3.forceManyBody().strength(-300))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(30));
+
+        // Add arrow markers
+        svg.append("defs").selectAll("marker")
+            .data(Object.keys(categoryColors))
+            .enter().append("marker")
+            .attr("id", d => `arrow-${d}`)
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 25)
+            .attr("refY", 0)
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("fill", d => categoryColors[d]);
+
+        const link = svg.append("g")
+            .selectAll("path")
+            .data(links)
+            .enter().append("path")
+            .attr("class", "link")
+            .attr("stroke", d => categoryColors[nodes.find(n => n.id === d.source.id || n.id === d.source).category])
+            .attr("marker-end", d => {
+                const sourceNode = nodes.find(n => n.id === (d.source.id || d.source));
+                return `url(#arrow-${sourceNode.category})`;
+            });
+
+        const node = svg.append("g")
+            .selectAll("g")
+            .data(nodes)
+            .enter().append("g")
+            .attr("class", "node")
+            .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+
+        node.append("circle")
+            .attr("r", 20)
+            .attr("fill", d => categoryColors[d.category])
+            .attr("stroke", "#fff")
+            .attr("stroke-width", 2);
+
+        node.append("text")
+            .text(d => d.id.replace("RFC", ""))
+            .attr("dy", 4)
+            .attr("fill", "white");
+
+        node.on("mouseover", function(event, d) {
+            tooltip.style("opacity", 1)
+                .html(`<strong>${d.id}</strong><br/>${d.title}<br/><em>${d.description}</em>`)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        })
+        .on("mouseout", function() {
+            tooltip.style("opacity", 0);
+        });
+
+        simulation.on("tick", () => {
+            link.attr("d", d => {
+                const dx = d.target.x - d.source.x;
+                const dy = d.target.y - d.source.y;
+                const dr = Math.sqrt(dx * dx + dy * dy) * 1.5;
+                return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+            });
+
+            node.attr("transform", d => `translate(${d.x},${d.y})`);
+        });
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    </script>
+</body>
+</html>

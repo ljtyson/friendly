@@ -1,0 +1,62 @@
+/**
+ *
+ * healthChartCss
+ *
+ * ddesouza 04/25/2019
+ **/
+#healthChart {
+	padding-bottom: 5px;
+}
+#loadChartButton {
+    padding: 0px 5px 0px 5px;
+    display:inline-block;
+    font-size:xx-large;
+    vertical-align:sub;
+}
+.chart-closed {
+	height: 0px;
+}
+.chart-opened {
+	height: 450px;
+}
+.nv-axislabel {
+    font-size: 15px !important;
+    font-weight: bold !important;
+}
+#healthChart > h1 {
+	font-size: 150%;
+	display: inline-block;
+}
+#casesInProgressData {
+	display: none;
+}
+#records_table {
+	width: 100%;
+}
+
+.workflow-chart-closed {
+	height: 0px;
+}
+.workflow-chart-opened {
+	height: 200px;
+}
+#workloadChartDiv {
+	padding-bottom: 5px;
+}
+#loadWorkloadChartButton {
+    padding: 0px 5px 0px 5px;
+    display:inline-block;
+    font-size:xx-large;
+    vertical-align:sub;
+}
+#workloadChartDiv > h1 {
+	font-size: 150%;
+	display: inline-block;
+}
+#workloadData {
+	display: none;
+}
+#workload_records_table {
+	width: 100%;
+}
+

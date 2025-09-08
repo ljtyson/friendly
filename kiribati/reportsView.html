@@ -1,0 +1,1819 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<meta charset="utf-8" />
+<script type="text/javascript" src="jquery.js"></script>
+	<script>
+		// Disable appscan incompatible IE cache busting
+		jQuery.ajaxSetup({ cache: true });
+	</script>
+    <script type="text/javascript" src="d3.min.js"></script>
+
+	<script type="text/javascript" src="nv.d3.min.js"></script>
+	<link type="text/css" rel="stylesheet" href="nv.d3.min.css" />
+	<link rel="stylesheet" type="text/css" href="healthChart.css">
+
+	<script type="text/javascript" src="DataTables-1.10.15/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="Buttons-1.2.2/js/dataTables.buttons.min.js"></script>
+	<script type="text/javascript" src="JSZip-2.5.0/jszip.min.js"></script>
+	<script type="text/javascript" src="Buttons-1.2.2/js/buttons.html5.min.js"></script>
+
+	<link type="text/css" rel="stylesheet" href="DataTables-1.10.15/css/jquery.dataTables.min.css"/>
+	<link type="text/css" rel="stylesheet" href="Buttons-1.2.2/css/buttons.dataTables.min.css"/>
+	
+	<script type="text/javascript" src="mask/jquery.mask.js"></script>
+<style>
+.reportsContainer fieldset {
+	width: 400px;
+	box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2);
+	border-top: 3px solid #2F64B2;
+	border-radius: 0 0 0 0;
+	padding: 20px;
+	margin-top: 4px;
+}
+
+.reportsContainer a {
+	text-decoration: none;
+}
+
+.reportsContainer li {
+	margin: 0;
+}
+
+.reportsContainer a:hover {
+	color: #FFC057;
+}
+</style>
+<!-- new -->
+<style>
+	fieldset.custom-style {
+		box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2);
+		border-top: 3px solid #2F64B2;
+		border-radius: 0;
+		width: 700px;
+		margin-bottom: 20px;
+	}
+	.label-cell {
+		width: 215px;
+	}
+	fieldset.c1 {width: 550px; margin-left: inherit; margin-bottom: inherit; background-color: white;}
+	/* Add any specific styles for incidents 	#incidentSelect { } */
+</style>
+</head>
+<body>
+
+
+
+	<table id="dashboardReports" class="dashboardTable">
+		<tr>
+			<td valign="top" style="width: 300px; padding: 20px 0 0 20px;">
+				<img style="width: 75px; vertical-align: middle;" alt="Reports"
+				src="Reports.png" /> <span
+				style="color: black; font-weight: bold; font-size: 150%; padding-left: 5px;">Reports</span>
+
+			</td>
+			<td>
+				<div id="reportsContainer" class="reportsContainer">
+					<fieldset
+						style="box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2); border-top: 3px solid #2F64B2; border-radius: 0 0 0 0; width: 700px; margin-bottom: 20px;">
+						<legend tabindex="0">Step 1: Select a report</legend>
+
+							<span class="formButton" style="text-align: center;width:200px;margin:5px;vertical-align: middle;" tabindex="0" onclick='javascript:showParametersDiv("$alphaKey",this)' onkeydown='if(event.which == 13 ) { showParametersDiv("$alphaKey",this); }'>Alpha</span>
+							<span class="formButton" style="text-align: center;width:200px;margin:5px;vertical-align: middle;" tabindex="0" onclick='javascript:showParametersDiv("$bravoKey",this)' onkeydown='if(event.which == 13 ) { showParametersDiv("$bravoKey",this); }'>Bravo</span>
+							<span class="formButton" style="text-align: center;width:200px;margin:5px;vertical-align: middle;" tabindex="0" onclick='javascript:showParametersDiv("$charlieKey",this)' onkeydown='if(event.which == 13 ) { showParametersDiv("$charlieKey",this); }'>Charlie</span>
+
+
+
+					</fieldset>
+
+					<fieldset
+						style="box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2); border-top: 3px solid #2F64B2; border-radius: 0 0 0 0; width: 700px; margin-bottom: 20px;">
+						<legend tabindex="0">Optional: Data Export</legend>
+
+						<p>This will export all the data from the selected object to an Excel spreadsheet.</p>
+
+
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("buildingAssessment")'>Building Assessment</span>
+
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("physicalSecurityIncident")'>Physical Security Incident</span>
+
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("nsiSafInspectionTracking")'>NSI/SAF Inspection Tracking</span>
+
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("hrlobOutstandingUpdates")'>HRLoB Outstanding Updates Report</span>
+
+
+
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("casesInPsbHoldingQueue")'>Cases in PSB Holding Queue</span>
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("foreignNationalPopulation")'>Foreign National Data Export</span>
+
+
+					<!--	#if ($currentRoleKey == 'role.physicalSecurity') -->
+							<span class="formButton"
+								style="text-align: center;width:200px;margin:5px;vertical-align: middle;"
+								tabindex="0"
+								onclick='exportData("courierCardExpirationsForTj")'>Courier Card Expirations For TJ</span>
+					<!--	#end -->
+
+					</fieldset>
+
+					<fieldset
+						style="box-shadow: 0 2px 6px 0 rgba(0, 0, 0, .2); border-top: 3px solid #2F64B2; border-radius: 0 0 0 0; width: 700px; margin-bottom: 20px;">
+						<legend tabindex="0">Step 2: Select Report Parameters</legend>
+						<!-- Here is where the dynamic parameters form will populate -->
+						<div id="parametersDiv"></div>
+					</fieldset>
+				</div>
+			</td>
+		</tr>
+
+	</table>
+	
+		
+		<div id ="workloadChartDiv" class="dashboardBlockDiv dashboardBlockDivL">
+		<button id="loadWorkloadChartButton" class="formButton" onclick="loadWorkloadChart()">&#x21E9</button>
+		<h1>Current Workload of Security Specialists, Adjudicators and FSEM Adjudicators</h1>
+		<p id="workloadReportDate"></p>
+		<div id="workloadChart" class="workflow-chart-closed">
+			<svg></svg> 
+		</div>
+		<div id="workloadData">
+			<table id="workload_records_table" class="display stripe">
+			    <thead>
+			    	<tr>
+				        <th>Assignee Name</th>
+				        <th>Status</th>
+						<th>Reciprocity Accepted</th>
+				        <th>Person ID</th>
+				        <th>Case/Event ID</th>
+						<th>Event Source</th>
+				        <th>Person Name</th>
+						<th>Case/Event Created Date</th>
+						<th>Workflow Status Date</th>
+						<th>Days in Current Status</th>
+						<th>USAccess Last Enrollment</th>
+			    	</tr>
+			    </thead>
+			</table>
+		</div>
+	</div>
+	
+	<script>
+		function loadWorkloadChart() {
+			
+			if ($('#workloadReportDate').html() != "") {
+				hideWorkflowChart()
+			} else {
+				var today = new Date();
+				var dateString = jQuery.datepicker.formatDate("MM dd, yy", new Date());
+				
+				jQ("#workloadReportDate").html("Today's Date: " + dateString);
+				
+				jQ.ajax({
+			        method: "GET",
+			        url: "page.dashboard.workload.ajax"
+			    })
+			    .done(function( response ) {
+					var queryData = JSON.parse(response);
+
+					showWorkflowChart(queryData[0].values.length);
+
+					nv.addGraph(function() {
+				     	var chart = nv.models.multiBarHorizontalChart()
+				    					.x(function(d) { return d.label })
+				    					.y(function(d) { return d.value })
+				    					.margin({ top:175, right:50, bottom: 40, left: 300 })
+								        .stacked(true)
+								        .showControls(false)
+				    					.showValues(true);
+
+				     	chart.yAxis
+							.axisLabel('Total Cases')    	
+					  		.tickFormat(d3.format("d"));
+			
+						chart.valueFormat(d3.format('d'));
+			
+				    	d3.select("#workloadChart svg")
+				    		.datum(queryData)
+				    		.transition().duration(350)
+				    		.call(chart);
+				    	
+				    	nv.utils.windowResize(chart.update);
+				    	chart.multibar.dispatch.on("elementClick", function(e) {
+						    loadWorkloadDataTable(e.data.id);
+						});
+
+				    	return chart;
+				    });
+			    });
+			}
+		}
+	
+		//ajax call to load table when you click on the report
+		function loadWorkloadDataTable(assigneeId) {
+			//show the table
+			jQ('#workloadData').css("display", "block");
+
+			var dateString = jQ.datepicker.formatDate("yymmdd", new Date());
+			var exportTitle = 'Current_Workload_Export_' + dateString;
+
+		    table = jQ('#workload_records_table').DataTable( {
+		        paging: true,
+		        destroy: true,
+				dom: 'Bfrtip',
+				buttons: [
+					{
+						extend: 'excelHtml5',
+						text: 'Export to Excel',
+						title: exportTitle,
+						exportOptions: {
+							format: {
+								body: function ( data, row, column, node ) {
+									switch (column) {
+										case 2:
+											return data.replaceAll(/<.*?>/g, '');
+										case 3:
+											return data.replaceAll(/<.*?>/g, '');
+										case 5 :
+											return formatDate(new Date(data));
+										case 6 :
+											return formatDate(new Date(data));
+										default :
+											return data
+									}
+								}
+							}
+						}
+					}
+				],
+		        ajax: {
+		            "type": "POST",
+		        	"url": "page.dashboard.workload.ajax&assigneeId="+ assigneeId,
+		        	"dataSrc" : function (json) {
+
+		     		    // manipulate your data (json)
+		      			return jQ.parseJSON(json.data);
+		        	}
+		        },
+		       	columns: [
+		            { "data": "ASSIGNEENAME" },
+		            { "data": "WORKFLOWSTATE" },
+					{ "data": "RECIPROCITY" },
+		            { "data": "PERSONID" },
+		            { "data": "CASEID" },
+					{ "data": "EVENTSOURCE"},
+		            { "data": "PERSONNAME" },
+					{
+						"data": "CREATEDONDATE",
+						"render": function(data, type) {
+							if (data !== null && data !== undefined) {
+								if (type === "sort") {
+									return new Date(data).getTime();
+								}
+								return new Date(data).toLocaleDateString();
+							}
+							return data;
+					}},
+					{
+					"data": "WORKFLOWSTATUSDATE",
+						"render": function(data, type) {
+							if (data !== null && data !== undefined) {
+								if (type === "sort") {
+									return new Date(data).getTime();
+								}
+								return new Date(data).toLocaleDateString();
+							}
+							return data;
+					}},
+				{ "data": "DAYSINCURRENTSTATUS" },
+				{ "data": "USHLASTENROLLMENT",
+					"render": function(data, type) {
+						if (data !== null && data !== undefined) {
+							if (type === "sort") {
+								return new Date(data).getTime();
+							}
+							return new Date(data).toLocaleDateString();
+						}
+						return data;
+				}}
+		        ],
+			    columnDefs: [
+			        { 
+			    		targets: [3], 
+			    			render: function (data, type, row, meta) { return '<a href="workflow.do?dataObjectKey=object.person&trackingId=' + row.PERSONTRACKINGID + '" target="_blank">' + data + '</a>'}
+			    		}, //create person record link
+			    		{ 
+			     		targets: [4], 
+			     		render: function (data, type, row, meta) { return '<a href="workflow.do?dataObjectKey=object.' + (data.startsWith("CASE") ? 'case' : 'eventItem') + '&trackingId=' + row.CASETRACKINGID + '" target="_blank">' + data + '</a>'}
+			     	} //create candidate record link
+			    ],
+		    	"order" : [[ 3, "desc" ]]
+			});
+		}
+
+		function formatDate(date) {
+		var d = new Date(date),
+				month = '' + (d.getMonth() + 1),
+				day = '' + d.getDate(),
+				year = d.getFullYear();
+
+		if (month.length < 2)
+			month = '0' + month;
+		if (day.length < 2)
+			day = '0' + day;
+
+		return [year, month, day].join('-');
+	}
+	
+		function showWorkflowChart(numAssignees) {
+			jQ('#loadWorkloadChartButton').html("&#x21E7")
+			jQ("#workloadChart").attr('class', 'workflow-chart-opened')
+
+			if (numAssignees > 3) {
+				jQ("#workloadChart").css('height', 75+(31*numAssignees)+'px') // multiply the number of assignees on the graph by any number to get a decent height for the graph
+			}
+		}
+		function hideWorkflowChart() {
+			jQ('#loadWorkloadChartButton').html("&#x21E9")
+			jQ("#workloadChart svg").html('')
+			jQ("#workloadChart svg").attr('class', '')
+			jQ("#workloadChart").attr('class', 'workflow-chart-closed')
+			jQ("#workloadChart").css('height', '0px')
+			jQ("#workloadReportDate").html('')
+			jQ('#workloadData').css('display', 'none')
+		}
+		</script>
+
+
+	<script type="text/javascript">
+
+var checkmarkIcon = $('<img class="checkmark" src="images/icons/16x16/check.png"/>');
+
+function showParametersDiv(reportBk,triggeredBy){
+    jQ('.checkmark').remove();
+    jQ(triggeredBy).prepend(checkmarkIcon);
+    jQ("#parametersDiv").empty();
+    
+    jQ.ajax({
+        method: "POST",
+        async: true,
+        url: "page.dashboard.report.parameters.ajax",
+        data: { bk: reportBk }
+    })
+    .done(function( msg ) {
+        var a = jQ(msg);
+        //jQ("#parametersDiv").html(a.find('form[name=reportXmlForm]').first());
+        jQ("#parametersDiv").html(msg);
+        
+        //jQ('form[name=reportXmlForm]').attr('target','_blank')
+
+        if (jQ("#runReport").length > 0) {
+       		jQ("#runReport").unbind( "click" );
+
+            if (reportBk == 'report.administrator.clearanceHoldersReport') {
+            	jQ('#ch_check_all').checkboxMaster('input[name=ch_params]');
+    			jQ('#runReport').click(runclearanceHoldersReport);
+    			setupCalendars('chStartDate', 'chStartDate_picker');
+    			setupCalendars('chEndDate', 'chEndDate_picker');
+    			jQuery("#chStartDate").mask('00/00/0000');
+    			jQuery("#chEndDate").mask('00/00/0000');
+    		} else if (reportBk == 'report.administrator.pendingOnboardingReport') {
+    			jQ('#po_check_all').checkboxMaster('input[name=po_params]');
+    			jQ('#runReport').click(runPendingOnboardingReport);
+    			setupCalendars('poStartDate', 'poStartDate_picker');
+    			setupCalendars('poEndDate', 'poEndDate_picker');
+    			jQuery("#poStartDate").mask('00/00/0000');
+    			jQuery("#poEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.administrator.pendingAdjudicationsReport') {
+				jQ('#pa_check_all').checkboxMaster('input[name=pa_params]');
+				jQ('#runReport').click(runPendingAdjudicationsReport);
+   			} else if (reportBk == 'report.administrator.metricsReport') {
+    			jQ('#runReport').click(runMetricsReport);
+    			setupCalendars('metricsStartDate', 'metricsStartDate_picker');
+    			setupCalendars('metricsEndDate', 'metricsEndDate_picker');
+    			jQuery("#metricsStartDate").mask('00/00/0000');
+    			jQuery("#metricsEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.jbowker.reinvestigationsDueReport') {
+    			jQ('#runReport').click(runReinvestigationsDueReport);
+    			setupCalendars('rdStartDate', 'rdStartDate_picker');
+    			setupCalendars('rdEndDate', 'rdEndDate_picker');
+    			jQuery("#rdStartDate").mask('00/00/0000');
+    			jQuery("#rdEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.theil.clearedToOnboardReport') {
+    			jQ('#runReport').click(runClearedToOnboardReport);
+    			setupCalendars('clearedToOnboardStartDate', 'clearedToOnboardStartDate_picker');
+    			setupCalendars('clearedToOnboardEndDate', 'clearedToOnboardEndDate_picker');
+    			jQuery("#clearedToOnboardStartDate").mask('00/00/0000');
+    			jQuery("#clearedToOnboardEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.theil.eqipInviteReport') {
+    			jQ('#runReport').click(runEqipInviteReport);
+    			setupCalendars('eqipInviteStartDate', 'eqipInviteStartDate_picker');
+    			setupCalendars('eqipInviteEndDate', 'eqipInviteEndDate_picker');
+    			jQuery("#eqipInviteStartDate").mask('00/00/0000');
+    			jQuery("#eqipInviteEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.theil.dailyActivityReport') {
+				jQ('#runReport').click(runDailyActivityReport);
+    			setupCalendars('dailyActivityStartDate', 'dailyActivityStartDate_picker');
+    			setupCalendars('dailyActivityEndDate', 'dailyActivityEndDate_picker');
+    			jQuery("#dailyActivityStartDate").mask('00/00/0000');
+    			jQuery("#dailyActivityEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.theil.hrExecReport') {
+				jQ('#ssc_check_all').checkboxMaster('input[name=ssc_params]');
+				jQ('#runReport').click(runSscReport);
+				setupCalendars('sscStartDate', 'sscStartDate_picker');
+				setupCalendars('sscEndDate', 'sscEndDate_picker');
+				jQuery("#sscStartDate").mask('00/00/0000');
+				jQuery("#sscEndDate").mask('00/00/0000');
+				jQuery("#displayOptionsFieldset").hide();
+			} else if (reportBk === 'report.excel.cvTracking') {
+				runCvTrackingReport();
+			}  else if (reportBk === 'report.excel.activeSciListing') {
+				runActiveSciListingReport(); 
+			}  else if (reportBk === 'report.excel.NSITrainingsReport') {
+				runNSITrainingsReport();  
+			}  else if (reportBk === 'report.mchohan.separationreport') {
+				runSeparationsReport();  
+			}  else if (reportBk === 'report.tjtadmin.allIncidentsReport') {
+				addAutocompleteStyles();
+				jQ('#inc_all_check_all').checkboxMaster('input[name=inc_all_params]');
+				jQ('#runReport').click(function () { runIncidentsReport(false); });
+				setupCalendars('incAllStartDate', 'incAllStartDate_picker');
+				setupCalendars('incAllEndDate', 'incAllEndDate_picker');
+				jQuery("#incAllStartDate").mask('00/00/0000');
+				jQuery("#incAllEndDate").mask('00/00/0000');
+				attachExistingPersonChangeHandlers();
+			} else if (reportBk === 'report.mchohan.invalidLoginAttempts') {
+				addAutocompleteStyles();
+				jQ('#runReport').click(function () { runInvalidLoginAttemptsReport(); });
+				setupCalendars('invalidLoginAttemptsStartDate', 'invalidLoginAttemptsStartDate_picker');
+				setupCalendars('invalidLoginAttemptsEndDate', 'invalidLoginAttemptsEndDate_picker');
+				jQuery("#invalidLoginAttemptsStartDate").mask('00/00/0000');
+				jQuery("#invalidLoginAttemptsEndDate").mask('00/00/0000');
+			} else if (reportBk === 'report.tjtadmin.allIncidentsCreatedByMeReport') {
+				addAutocompleteStyles();
+				jQ('#inc_all_check_all').checkboxMaster('input[name=inc_all_params]');
+				jQ('#runReport').click(function() { runIncidentsReport(true); });
+				setupCalendars('incAllStartDate', 'incAllStartDate_picker');
+				setupCalendars('incAllEndDate', 'incAllEndDate_picker');
+				jQuery("#incAllStartDate").mask('00/00/0000');
+				jQuery("#incAllEndDate").mask('00/00/0000');
+				attachExistingPersonChangeHandlers();
+			} else if (reportBk === 'report.tjtadmin.sead3CeProgramMetricsSummaryReportForEvents') {
+				jQ('#runReport').click(runSead3MetricsSummaryReport);
+				setupCalendars('sead3MetricsStartDate', 'sead3MetricsStartDate_picker');
+				setupCalendars('sead3MetricsEndDate', 'sead3MetricsEndDate_picker');
+				jQuery("#sead3MetricsStartDate").mask('00/00/0000');
+				jQuery("#sead3MetricsEndDate").mask('00/00/0000');
+			} else if (reportBk === 'report.tjtadmin.sead3CeProgramMetricsDetailedReportForEvents') {
+				jQ('#runReport').click(runSead3MetricsDetailedReport);
+				setupCalendars('sead3MetricsDetailedStartDate', 'sead3MetricsDetailedStartDate_picker');
+				setupCalendars('sead3MetricsDetailedEndDate', 'sead3MetricsDetailedEndDate_picker');
+				jQuery("#sead3MetricsDetailedStartDate").mask('00/00/0000');
+				jQuery("#sead3MetricsDetailedEndDate").mask('00/00/0000');
+			} else if (reportBk === 'report.tjtadmin.sead3AndEventsAssignmentStatusReport') {
+				jQ('#runReport').click(runSead3AndEventsAssignmentStatusReport);
+				setupCalendars('eventAssignmentsStartDate', 'eventAssignmentsStartDate_picker');
+				setupCalendars('eventAssignmentsEndDate', 'eventAssignmentsEndDate_picker');
+				jQuery("#eventAssignmentsStartDate").mask('00/00/0000');
+				jQuery("#eventAssignmentsEndDate").mask('00/00/0000');
+			} else if (reportBk === 'report.tjtadmin.sensitivePositionReport') {
+				jQ('#runReport').click(runSensitivePositionsReport);
+				setupCalendars('sensitivePositionsStartDate', 'sensitivePositionsStartDate_picker');
+				setupCalendars('sensitivePositionsEndDate', 'sensitivePositionsEndDate_picker');
+				jQuery("#sensitivePositionsStartDate").mask('00/00/0000');
+				jQuery("#sensitivePositionsEndDate").mask('00/00/0000');
+			} else if (reportBk === 'report.tjtadmin.countOfCasesInitiatedByInvestigationType') {
+				jQ('#runReport').click(runCasesByInvestigationType);
+				setupCalendars('casesByInvTypeStartDate', 'casesByInvTypeStartDate_picker');
+				setupCalendars('casesByInvTypeEndDate', 'casesByInvTypeEndDate_picker');
+				jQuery("#casesByInvTypeStartDate").mask('00/00/0000');
+				jQuery("#casesByInvTypeEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.benkhtur.countOfAccessedReports') {
+    			jQ('#runReport').click(runCountOfAccessedReports);
+    			setupCalendars('countOfAccessedReportsStartDate', 'countOfAccessedReportsStartDate_picker');
+    			setupCalendars('countOfAccessedReportsEndDate', 'countOfAccessedReportsEndDate_picker');
+    			jQuery("#countOfAccessedReportsStartDate").mask('00/00/0000');
+    			jQuery("#countOfAccessedReportsEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.benkhtur.dcsaCeEnrollmentStatusReport') {
+				jQ('#pa_check_all').checkboxMaster('input[name=pa_params]');
+				jQ('#runReport').click(function() {
+					runEnrollmentStatusReport('report.benkhtur.dcsaCeEnrollmentStatusReport');
+				});
+   			} else if (reportBk == 'report.benkhtur.rapbackEnrollmentStatusReport') {
+				jQ('#pa_check_all').checkboxMaster('input[name=pa_params]');
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+				jQ('#runReport').click(function () {
+					runEnrollmentStatusReport('report.benkhtur.rapbackEnrollmentStatusReport');
+				});
+			} else if (reportBk === 'report.tjtadmin.rapbackRapsheetsReceivedReport') {
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+				jQ('#runReport').click(function () {
+					runRapbackRapsheetsReceivedReport(reportBk);
+				});
+   			} else if (reportBk == 'report.benkhtur.rapbackEnrollmentStatusExportForCvs') {
+				jQ('#pa_check_all').checkboxMaster('input[name=pa_params]');
+				jQ('#runReport').click(runRapbackEnrollmentStatusExportForCvs);
+   			} else if (reportBk === 'report.benkhtur.edeliveryFilesMatchedToCompleteCasesReport') {
+				addAutocompleteStyles();
+				jQ('#runReport').click(function () { runEdeliveryFilesMatchedToCompleteCasesReport(); });
+				setupCalendars('edeliveryFilesMatchedToCompleteCasesStartDate', 
+								'edeliveryFilesMatchedToCompleteCasesStartDate_picker');
+				jQuery("#edeliveryFilesMatchedToCompleteCasesStartDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.recentHiresForKent') {
+    			jQ('#runReport').click(runRKReport);
+    			setupCalendars('rhStartDate', 'rhStartDate_picker');
+    			setupCalendars('rhEndDate', 'rhEndDate_picker');
+    			jQuery("#rhStartDate").mask('00/00/0000');
+    			jQuery("#rhEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.recentTerminationsForKent') {
+    			jQ('#runReport').click(runRTReport);
+    			setupCalendars('rtStartDate', 'rtStartDate_picker');
+    			setupCalendars('rtEndDate', 'rtEndDate_picker');
+    			jQuery("#rtStartDate").mask('00/00/0000');
+    			jQuery("#rtEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.recentTerminationsForKent2') {
+    			jQ('#runReport').click(runRTReport);
+    			setupCalendars('rtStartDate', 'rtStartDate_picker');
+    			setupCalendars('rtEndDate', 'rtEndDate_picker');
+    			jQuery("#rtStartDate").mask('00/00/0000');
+    			jQuery("#rtEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.adjudicationForPersonnelInSensitivePositions') {
+    			jQ('#runReport').click(runRecentAdjudications);
+    			setupCalendars('raStartDate', 'raStartDate_picker');
+    			setupCalendars('raEndDate', 'raEndDate_picker');
+    			jQuery("#raStartDate").mask('00/00/0000');
+    			jQuery("#raEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.newPersonnelInSensitivePositionsByEodDate') {
+				jQ('#runReport').click(newSensitive);
+				setupCalendars('npStartDate', 'npStartDate_picker');
+				setupCalendars('npEndDate', 'npEndDate_picker');
+				jQuery("#npStartDate").mask('00/00/0000');
+				jQuery("#npEndDate").mask('00/00/0000');
+			} else if (reportBk == 'report.ltyson.upgradesAndDowngradesOfSensitivePositions') {
+				jQ('#runReport').click(upDown);
+				setupCalendars('udStartDate', 'udStartDate_picker');
+				setupCalendars('udEndDate', 'udEndDate_picker');
+				jQuery("#udStartDate").mask('00/00/0000');
+				jQuery("#udEndDate").mask('00/00/0000');
+			} else if(     reportBk === 'report.benkhtur.newAndLateralMovesAndReinvsOfSensitivePositions'
+						|| reportBk === 'report.benkhtur.separationsOfPersonnelInSensitivePositions'
+			            || reportBk === 'report.tjtadmin.personnelNoLongerInSensitivePositions') {
+				jQ('#runReport').on("click", function() {
+					runReportWithStartAndEndDate(reportBk, true)
+				});
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+			} else if (reportBk == 'report.tjtadmin.casesMissingRegistrationId') {
+				jQ('#runReport').click(casesMissingRegistration);
+			} else if (reportBk == 'report.benkhtur.allActivePersonnelSnapshot') {
+				jQ('#runReport').click(allActivePersonnelSnapshot);
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+			} else if (reportBk == 'report.mchohan.adjudicationsCompleted') {
+				jQ('#runReport').click(adjudicationsCompleted);
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+			}
+			else if (reportBk == 'report.mchohan.invoicingReferenceReport') {
+				jQ('#runReport').click(invoicingReference);
+				setupCalendars('invStartDate', 'invStartDate_picker');
+				setupCalendars('invEndDate', 'invEndDate_picker');
+				jQuery("#invStartDate").mask('00/00/0000');
+				jQuery("#invEndDate").mask('00/00/0000');
+			}
+			else if (reportBk === 'report.ltyson.rapBackAdjudicationReport') {
+				jQ('#runReport').on("click", function () { runReportWithStartAndEndDate(reportBk, true) });
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+			} 
+			else if (reportBk === 'report.ltyson.foreignTravelTrackingAndAuditing') {
+				jQ('#runReport').on("click", function () { runReportWithStartAndEndDate(reportBk, true) });
+				setupCalendars('startDate', 'startDate_picker');
+				setupCalendars('endDate', 'endDate_picker');
+				jQuery("#startDate").mask('00/00/0000');
+				jQuery("#endDate").mask('00/00/0000');
+			} else if (reportBk == 'report.tjtadmin.fedPersonnelMissingEci') {
+				jQ('#runReport').click(fedPersonnelMissingECI);
+			} else {
+				jQ('#runReport').click(function () { runReportWithNoParameters(reportBk) });
+			}
+        }
+        
+    	// If accessibility enabled is on, then hide Singlee Page HTML option and select 'DOC' as the default
+        if ("$currentUserAccessibilityEnabled" == "true") {
+        	jQ('#rtf').click();
+        	jQ('#html_').parent().hide();
+        }
+    });
+}
+
+function runMetricsReport() {
+	if (validateDates('metricsStartDate', 'metricsEndDate', 'metricsReport') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.administrator.metricsReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#metricsStartDate').val() 
+			+ '&endDate=' + jQ('#metricsEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runReinvestigationsDueReport() {
+	if (validateDates('rdStartDate', 'rdEndDate', 'reinvestigationsDueReport') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.jbowker.reinvestigationsDueReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&Reinvestigation Due Start Date=' + jQ('#rdStartDate').val() 
+			+ '&Reinvestigation Due End Date=' + jQ('#rdEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runPendingOnboardingReport() {	
+	if (validateDates('poStartDate', 'poEndDate', 'pendingOnboardingReport') == false) {
+		return false;
+	}
+	
+	var applicantTypes = '';
+	var typeNames = '';
+	if (jQ('input[name="po_params"]:checked').length > 0) {
+		jQ('input[name="po_params"]:checked').each(function(){
+			applicantTypes += this.value + ", ";
+			typeNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	} else {
+		jQ('input[name="po_params"]').each(function(){
+			applicantTypes += this.value + ", ";
+			typeNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	}
+
+	applicantTypes = applicantTypes.replace(/, $/, "");
+	typeNames = typeNames.replace(/, $/, "");
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.administrator.pendingOnboardingReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+			+ '&startDate=' + jQ('#poStartDate').val() 
+			+ '&endDate=' + jQ('#poEndDate').val() 
+			+ '&types=' + '"' + applicantTypes + '"'
+			+ '&typeNames=' + typeNames
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runclearanceHoldersReport(reportId) {
+	if (validateDates('chStartDate', 'chEndDate', 'clearanceHoldersReport') == false) {
+		return false;
+	}
+	var allUnchecked = jQ('input[name="ch_params"]:checked').length == 0;
+	
+	var clearanceTypes = '';
+	var typeNames = '';
+	
+	if (jQ('input[name="ch_params"]:checked').length > 0) {
+		jQ('input[name="ch_params"]:checked').each(function(){
+			clearanceTypes += this.value + ", ";
+			typeNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	} else {
+		jQ('input[name="ch_params"]').each(function(){
+			clearanceTypes += this.value + ", ";
+			typeNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	}
+
+	clearanceTypes = clearanceTypes.replace(/, $/, "");
+	typeNames = typeNames.replace(/, $/, "");
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.administrator.clearanceHoldersReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#chStartDate').val() 
+			+ '&endDate=' + jQ('#chEndDate').val() 
+			+ '&types=' + '"' + clearanceTypes + '"'
+			+ '&typeNames=' + typeNames
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runPendingAdjudicationsReport() {
+	var allUnchecked = jQ('input[name="pa_params"]:checked').length == 0;		
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.administrator.pendingAdjudicationsReport'});
+	var id = obj.REPORT_ID;
+	
+	var applicantTypes = '"';
+	var applicantTypesDisplay = '';
+	
+	if (jQ('input[name="pa_params"]:checked').length > 0) {
+		jQ('input[name="pa_params"]:checked').each(function(){
+			applicantTypes += this.value + ",";
+			applicantTypesDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+
+		});
+	} else {
+		jQ('input[name="pa_params"]').each(function(){
+			applicantTypes += this.value + ",";
+			applicantTypesDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	}
+
+	applicantTypes = applicantTypes.replace(/,$/, "\"");
+	applicantTypesDisplay = applicantTypesDisplay.replace(/, $/, "");
+	
+	var reportURL = 'report.parameters.submit.do?'
+			+ 'id=' + id
+			+ '&applicantTypes=' + applicantTypes
+			+ '&applicantTypesDisplay=' + applicantTypesDisplay
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value')); 
+
+	window.open(reportURL);
+}
+
+function runEnrollmentStatusReport(reportBusinessKey) {
+	if(reportBusinessKey == "report.benkhtur.rapbackEnrollmentStatusReport") {
+		if (validateDates('startDate', 'endDate', 'datesNotRequired') === false) {
+			return false;
+		}
+	}
+
+	var allUnchecked = jQ('input[name="pa_params"]:checked').length == 0;		
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == reportBusinessKey});
+	var id = obj.REPORT_ID;
+	
+	var enrollmentStatus = '"';
+	var enrollmentStatusDisplay = '';
+	
+	if (jQ('input[name="pa_params"]:checked').length > 0) {
+		jQ('input[name="pa_params"]:checked').each(function(){
+			enrollmentStatus += this.value + ",";
+			enrollmentStatusDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+
+		});
+	} else {
+		jQ('input[name="pa_params"]').each(function(){
+			enrollmentStatus += this.value + ",";
+			enrollmentStatusDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	}
+
+	enrollmentStatus = enrollmentStatus.replace(/,$/, "\"");
+	enrollmentStatusDisplay = enrollmentStatusDisplay.replace(/, $/, "");
+	
+	var reportURL = 'report.parameters.submit.do?'
+			+ 'id=' + id
+			+ '&enrollmentStatus=' + enrollmentStatus
+			+ '&enrollmentStatusDisplay=' + enrollmentStatusDisplay;
+
+	if(reportBusinessKey == "report.benkhtur.rapbackEnrollmentStatusReport") {
+		reportURL += '&startDate=' + jQ('#startDate').val() + '&endDate=' + jQ('#endDate').val()
+	}
+
+	reportURL += '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value')); 
+
+	window.open(reportURL);
+}
+
+function runRapbackRapsheetsReceivedReport(reportBusinessKey) {
+	if (validateDates('startDate', 'endDate', 'datesNotRequired') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == reportBusinessKey});
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?'
+			+ 'id=' + id
+            + '&startDate=' + jQ('#startDate').val()
+			+ '&endDate=' + jQ('#endDate').val();
+
+	reportURL += '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runRapbackEnrollmentStatusExportForCvs() {
+	var allUnchecked = jQ('input[name="pa_params"]:checked').length == 0;		
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.benkhtur.rapbackEnrollmentStatusExportForCvs'});
+	var id = obj.REPORT_ID;
+	
+	var typeOfTransactions = '"';
+	var typeOfTransactionsDisplay = '';
+	
+	if (jQ('input[name="pa_params"]:checked').length > 0) {
+		jQ('input[name="pa_params"]:checked').each(function(){
+			typeOfTransactions += this.value + ",";
+			typeOfTransactionsDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+
+		});
+	} else {
+		jQ('input[name="pa_params"]').each(function(){
+			typeOfTransactions += this.value + ",";
+			typeOfTransactionsDisplay += jQ('label[for="' + this.id + '"]').html() + ", ";
+		});
+	}
+
+	typeOfTransactions = typeOfTransactions.replace(/,$/, "\"");
+	typeOfTransactionsDisplay = typeOfTransactionsDisplay.replace(/, $/, "");
+	
+	var reportURL = 'report.parameters.submit.do?'
+			+ 'id=' + id
+			+ '&TYPE_OF_TRANSACTION=' + typeOfTransactions
+			+ '&TYPE_OF_TRANSACTION_DISPLAY=' + typeOfTransactionsDisplay
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value')); 
+
+	window.open(reportURL);
+}
+
+function runClearedToOnboardReport() {
+	if (validateDates('clearedToOnboardStartDate', 'clearedToOnboardEndDate', 'clearedToOnboardReport') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.theil.clearedToOnboardReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#clearedToOnboardStartDate').val() 
+			+ '&endDate=' + jQ('#clearedToOnboardEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runInvalidLoginAttemptsReport() {
+	if (validateDates('invalidLoginAttemptsStartDate', 'invalidLoginAttemptsEndDate', 'invalidLoginAttempts') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.mchohan.invalidLoginAttempts'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#invalidLoginAttemptsStartDate').val() 
+			+ '&endDate=' + jQ('#invalidLoginAttemptsEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runEdeliveryFilesMatchedToCompleteCasesReport() {
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 
+											'report.benkhtur.edeliveryFilesMatchedToCompleteCasesReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' 
+			+ jQ('#edeliveryFilesMatchedToCompleteCasesStartDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runEqipInviteReport() {
+	if (validateDates('eqipInviteStartDate', 'eqipInviteEndDate', 'eqipInviteReport') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.theil.eqipInviteReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#eqipInviteStartDate').val() 
+			+ '&endDate=' + jQ('#eqipInviteEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runDailyActivityReport() {
+	if (validateDates('dailyActivityStartDate', 'dailyActivityEndDate', 'dailyActivityReport') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.theil.dailyActivityReport'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#dailyActivityStartDate').val() 
+			+ '&endDate=' + jQ('#dailyActivityEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runSscReport() {    
+	if (validateDates('sscStartDate', 'sscEndDate', 'SscReport') === false) {
+		return false;
+	}
+	
+	var actionTypes = '';
+	if (jQ('input[name="ssc_params"]:checked').length > 0) {
+		jQ('input[name="ssc_params"]:checked').each(function(){
+			actionTypes += this.value + ", ";
+		});
+	} else {
+		jQ('input[name="ssc_params"]').each(function(){
+			actionTypes += this.value + ",";
+		});
+	}
+
+	actionTypes = actionTypes.replace(/, $/, "");
+
+	var reportURL = 'page.dashboard.reports.excel&report=federalOnboardingStatusReport&startDate=' + jQ('#sscStartDate').val()
+			+ '&endDate=' + jQ('#sscEndDate').val() 
+			+ '&types=' + actionTypes;
+
+	logReportExecution('report.theil.hrExecReport', 'xls');
+
+	window.open(reportURL);
+}
+
+function runCvTrackingReport() {
+	logReportExecution('report.excel.cvTracking', 'xls');
+	window.open('page.dashboard.reports.excel&report=cvTrackingReport');
+}
+
+function runActiveSciListingReport() {
+	logReportExecution('report.excel.activeSciListing', 'xls');
+	window.open('page.dashboard.reports.excel&report=activeSCIListingReport');
+}
+
+function runNSITrainingsReport() {
+	logReportExecution('report.excel.NSITrainingsReport', 'xls');
+	window.open('page.dashboard.reports.excel&report=NSITrainingsReport');
+}
+
+function runSeparationsReport() {
+	logReportExecution('report.mchohan.separationreport', 'xls');
+	window.open('page.dashboard.reports.excel&report=separationreport');
+}
+
+function runIncidentsReport(runCreatedBy) {
+	if (validateDates('incAllStartDate', 'incAllEndDate', 'IncAllReport') === false) {
+		return false;
+	}
+
+	var incidentStatuses = '';
+	var statusNames = '';
+	if (jQ('input[name="inc_all_params"]:checked').length > 0) {
+		jQ('input[name="inc_all_params"]:checked').each(function(){
+			incidentStatuses += this.value + ", ";
+			if (!this.value.includes('code.blank')) {
+				statusNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+			}
+		});
+	} else {
+		jQ('input[name="inc_all_params"]').each(function(){
+			incidentStatuses += this.value + ", ";
+			if (!this.value.includes('code.blank')) {
+				statusNames += jQ('label[for="' + this.id + '"]').html() + ", ";
+			}
+		});
+	}
+
+	incidentStatuses = incidentStatuses.replace(/, $/, "");
+	statusNames = statusNames.replace(/, $/, "");
+
+	var x = JSON.parse('$reportsJ')
+	var obj;
+	if (runCreatedBy) {
+		obj = x.find(function (obj) {
+			return obj.BUSINESS_KEY === 'report.tjtadmin.allIncidentsCreatedByMeReport'
+		});
+	} else {
+		obj = x.find(function (obj) {
+			return obj.BUSINESS_KEY === 'report.tjtadmin.allIncidentsReport'
+		});
+	}
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id
+	    + '&startDate=' + jQ('#incAllStartDate').val()
+    	+ '&endDate=' + jQ('#incAllEndDate').val()
+    	+ '&statuses=' + '"' + incidentStatuses + '"'
+    	+ '&statusNames=' + statusNames
+    	+ '&pid=' + jQ("#pid").val()
+		+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+
+}
+
+function runSead3MetricsSummaryReport() {
+	if (validateDates('sead3MetricsStartDate', 'sead3MetricsEndDate', 'Sead3MetricsReport') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === 'report.tjtadmin.sead3CeProgramMetricsSummaryReportForEvents' });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#sead3MetricsStartDate').val()
+			+ '&endDate=' + jQ('#sead3MetricsEndDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runSead3MetricsDetailedReport() {
+	if (validateDates('sead3MetricsDetailedStartDate', 'sead3MetricsDetailedEndDate', 'Sead3MetricsDetailedReport') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === 'report.tjtadmin.sead3CeProgramMetricsDetailedReportForEvents' });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#sead3MetricsDetailedStartDate').val()
+			+ '&endDate=' + jQ('#sead3MetricsDetailedEndDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runSead3AndEventsAssignmentStatusReport() {
+
+	if (validateDates('eventAssignmentsStartDate', 'eventAssignmentsEndDate', 'Sead3AndEventAssignmentsStatusReport') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === 'report.tjtadmin.sead3AndEventsAssignmentStatusReport' });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#eventAssignmentsStartDate').val()
+			+ '&endDate=' + jQ('#eventAssignmentsEndDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runSensitivePositionsReport() {
+
+	if (validateDates('sensitivePositionsStartDate', 'sensitivePositionsEndDate', 'SensitivePositionsReport') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === 'report.tjtadmin.sensitivePositionReport' });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#sensitivePositionsStartDate').val()
+			+ '&endDate=' + jQ('#sensitivePositionsEndDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runCasesByInvestigationType() {
+
+	if (validateDates('casesByInvTypeStartDate', 'casesByInvTypeEndDate', 'CasesByInvestigationType') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === 'report.tjtadmin.countOfCasesInitiatedByInvestigationType' });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#casesByInvTypeStartDate').val()
+			+ '&endDate=' + jQ('#casesByInvTypeEndDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runCountOfAccessedReports() {
+	if (validateDates('countOfAccessedReportsStartDate', 'countOfAccessedReportsEndDate', 'countOfAccessedReports') == false) {
+		return false;
+	}
+	
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.benkhtur.countOfAccessedReports'});
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#countOfAccessedReportsStartDate').val() 
+			+ '&endDate=' + jQ('#countOfAccessedReportsEndDate').val() 
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runRHReport() {
+	if ( validateDates( 'rhStartDate', 'rhEndDate', 'recentHiresForKent' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.recentHiresForKent'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#rhStartDate').val() + '&EndDate=' + jQ('#rhEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function runRKReport() {
+	if ( validateDates( 'rhStartDate', 'rhEndDate', 'recentHiresForKent' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.recentHiresForKent'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#rhStartDate').val() + '&EndDate=' + jQ('#rhEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function runRTReport() {
+	if ( validateDates( 'rtStartDate', 'rtEndDate', 'recentTerminationsForKent' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.recentTerminationsForKent2'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#rtStartDate').val() + '&EndDate=' + jQ('#rtEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function runRecentAdjudications() {
+	if ( validateDates( 'raStartDate', 'raEndDate', 'recentAdjudications' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.adjudicationForPersonnelInSensitivePositions'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#raStartDate').val() + '&EndDate=' + jQ('#raEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function newSensitive() {
+	if ( validateDates( 'npStartDate', 'npEndDate', 'newSensitive' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.newPersonnelInSensitivePositionsByEodDate'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#npStartDate').val() + '&EndDate=' + jQ('#npEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function upDown() {
+	if ( validateDates( 'udStartDate', 'udEndDate', 'upDown' ) == false ) { return false; }
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.ltyson.upgradesAndDowngradesOfSensitivePositions'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id 
+	+ '&StartDate=' + jQ('#udStartDate').val() + '&EndDate=' + jQ('#udEndDate').val() 
+	+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function casesMissingRegistration() {
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.tjtadmin.casesMissingRegistrationId'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function fedPersonnelMissingECI() {
+	var x = JSON.parse('$reportsJ');
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == 'report.tjtadmin.fedPersonnelMissingEci'; });
+	var id = obj.REPORT_ID;
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	if (jQ('#displayOnSinglePage').is(':checked')) {
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+	logReportExecution( obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value') );
+	window.open(reportURL);
+}
+
+function allActivePersonnelSnapshot() {
+
+	if (validateDates('startDate', 'endDate', 'datesRequired') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === "report.benkhtur.allActivePersonnelSnapshot" });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#startDate').val()
+			+ '&endDate=' + jQ('#endDate').val()
+			+ '&fileFormat=xlsx&IS_IGNORE_PAGINATION=true';
+
+	logReportExecution(obj.BUSINESS_KEY, "xlsx");
+
+	window.open(reportURL);
+}
+
+function adjudicationsCompleted() {
+
+if (validateDates('startDate', 'endDate', 'datesRequired') === false) {
+	return false;
+}
+
+var x = JSON.parse('$reportsJ')
+var obj = x.find(function (obj) { return obj.BUSINESS_KEY === "report.mchohan.adjudicationsCompleted" });
+var id = obj.REPORT_ID;
+
+var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#startDate').val()
+		+ '&endDate=' + jQ('#endDate').val()
+		+ '&fileFormat=xlsx&IS_IGNORE_PAGINATION=true';
+
+logReportExecution(obj.BUSINESS_KEY, "xlsx");
+
+window.open(reportURL);
+}
+
+function invoicingReference() {
+
+if (validateDates('invStartDate', 'invEndDate', 'invoicingReference') === false) {
+	return false;
+}
+
+var x = JSON.parse('$reportsJ')
+var obj = x.find(function (obj) { return obj.BUSINESS_KEY === "report.mchohan.invoicingReferenceReport" });
+var id = obj.REPORT_ID;
+
+var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#invStartDate').val()
+		+ '&endDate=' + jQ('#invEndDate').val()
+		+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+if(jQ('#displayOnSinglePage').is(":checked")){
+	reportURL += '&IS_IGNORE_PAGINATION=true';
+}
+			
+
+logReportExecution(obj.BUSINESS_KEY, "xlsx");
+
+window.open(reportURL);
+}
+
+function runReportWithNoParameters(businessKey) {
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY == businessKey });
+	var id = obj.REPORT_ID;
+	
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+	
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function runReportWithStartAndEndDate(reportBusinessKey, datesRequired) {
+
+	if (validateDates('startDate', 'endDate', (datesRequired === true) ? 'datesRequired' : 'datesNotRequired') === false) {
+		return false;
+	}
+
+	var x = JSON.parse('$reportsJ')
+	var obj = x.find(function (obj) { return obj.BUSINESS_KEY === reportBusinessKey });
+	var id = obj.REPORT_ID;
+
+	var reportURL = 'report.parameters.submit.do?id=' + id + '&startDate=' + jQ('#startDate').val()
+			+ '&endDate=' + jQ('#endDate').val()
+			+ '&fileFormat=' + jQ('input[name=fileFormat]:checked').attr('value');
+
+	if(jQ('#displayOnSinglePage').is(":checked")){
+		reportURL += '&IS_IGNORE_PAGINATION=true';
+	}
+
+	logReportExecution(obj.BUSINESS_KEY, jQ('input[name=fileFormat]:checked').attr('value'));
+
+	window.open(reportURL);
+}
+
+function logReportExecution(reportBusinessKey, reportDisplayOption) {
+	jQuery.ajax({
+		url: 'page.dashboard.report.executionLog.ajax' + 
+			 '&reportBusinessKey=' + reportBusinessKey + 
+			 '&reportDisplayOption=' + reportDisplayOption,
+		success: function(data) {
+			console.log("Report execution logged.");
+		}
+	});
+}
+
+// Select All Function - Selects all checkboxes in a checkbox group
+$.fn.checkboxMaster = function(list) {
+    return this.on('click', function() {
+        jQ(list).prop('checked', jQ(this).prop('checked'));
+    });
+}
+
+/* Takes the name of the checkbox group and the 'Select All' checkbox id.
+ * This function makes the 'Select All' checkbox dynamically reflect the state of all of the checkboxes in it's name group.
+ * If all of the checkboxes are selected this function will prop the 'Select All' checkbox to checked.
+ * And if one checkbox is unselected, then the function will prop the 'Select All' checkbox back to unchecked.
+ */
+function selectAllPropOnClick(inputName, checkAllId) {
+	if (jQ('input[name="' + inputName + '"]:checked').length != jQ('input[name="' + inputName + '"]:checkbox').length) {
+		// All checkboxes are not selected so prop the 'Select All' checkbox to unchecked
+		jQ('#' + checkAllId).attr('checked', false)
+	} else {
+		// All checkboxes are selected so prop the 'Select All' checkbox to checked
+		jQ('#' + checkAllId).prop('checked','checked');
+	}
+}
+
+// merge validation functions later
+function validateDates(startDate, endDate, report) {
+	var alertMessage = "";
+	var valid = true;
+	var validDateFormat = /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/[123][0-9]{3}$|^$/;
+
+	if (
+		report === 'clearanceHoldersReport' || 
+		report === 'metricsReport' || 
+		report === 'clearedToOnboardReport' || 
+		report === 'SscReport' || 
+		report === 'IncAllReport' ||  
+		report === 'Sead3MetricsReport' || 
+		report === 'Sead3AndEventAssignmentsStatusReport' || 
+		report === 'SensitivePositionsReport' || 
+		report === 'CasesByInvestigationType' || 
+		report === 'countOfAccessedReports' || 
+		report === 'invalidLoginAttempts' ||
+		report === 'recentHiresForKent' ||
+		report === 'recentAdjudications' ||
+		report === 'newSensitive' ||
+		report === 'upDown' ||
+        report === 'recentTerminationsForKent' || 
+		report === 'invoicingReference' ||
+        report === 'datesNotRequired'
+		) {
+		if ((validDateFormat.test(jQ('#' + startDate).val()))) {
+			if (!jQ('#' + startDate).val() === '') {
+				if (!isRealDate(jQ('#' + startDate).val())) {
+					alertMessage += 'Start Date is invalid.'
+					valid = false;
+				}
+			}
+		} else {
+			alertMessage += 'Start Date is invalid.'
+			valid = false;
+		}
+		if (validDateFormat.test(jQ('#' + endDate).val())) {
+			if (!jQ('#' + endDate).val() === '') {
+				if (!isRealDate(jQ('#' + endDate).val())) {
+					alertMessage += '\nEnd Date is invalid.'
+					valid = false;
+				}
+			}
+		} else {
+			alertMessage += '\nEnd Date is invalid.'
+			valid = false;
+		}
+		if (valid 
+				&& report != 'reinvestigationsDueReport') {
+			var endDateObj = new Date(jQ('#' + endDate).val());
+			var today = new Date();
+			
+			if (endDateObj > today) {
+				alertMessage += '\nEnd Date cannot be a future date.'
+					valid = false;
+			}
+		}
+	}
+	
+	if (report == 'fingerprintsWOInvestigationsReport'
+			|| report == 'pendingOnboardingReport'
+				|| report == 'reinvestigationsDueReport'
+					|| report == 'invoicingReference'
+						|| report == 'datesRequired') {
+		if (jQ('#' + startDate).val() == '') {
+			alertMessage += 'Start Date is required.'
+			valid = false;
+		} else {
+			if ((validDateFormat.test(jQ('#' + startDate).val()))) {
+				if (!isRealDate(jQ('#' + startDate).val())) {
+					alertMessage += 'Start Date is invalid.'
+					valid = false;
+				}
+			} else {
+				alertMessage += 'Start Date is invalid.'
+				valid = false;
+			}
+		}
+		
+		if (jQ('#' + endDate).val() == '') {
+			alertMessage += '\nEnd Date is required.'
+			valid = false;
+		} else {
+			if ((validDateFormat.test(jQ('#' + endDate).val()))) {
+				if (!isRealDate(jQ('#' + endDate).val())) {
+					alertMessage += '\nEnd Date is invalid.'
+					valid = false;
+				}
+			} else {
+				alertMessage += '\nEnd Date is invalid.'
+					valid = false;
+			}
+		}
+		if (valid && report != 'reinvestigationsDueReport') {
+			var endDateObj = new Date(jQ('#' + endDate).val());
+			var today = new Date();
+			
+			if (endDateObj > today) {
+				alertMessage += '\nEnd Date cannot be a future date.'
+					valid = false;
+			}
+		}
+	}
+	
+	if (valid == true) {
+		start = new Date(jQ('#' + startDate).val());
+		end = new Date(jQ('#' + endDate).val());
+		if (start > end) {
+			alert('Start Date must be on or before End Date.')
+			return false;
+		}
+		
+	}
+	
+	if (valid == false) {
+		alert(alertMessage);
+		return false;
+	}
+}
+
+// Checks if the date provided is a real date ex. !02/31/2018
+function isRealDate(s) {
+	var bits = s.split('/');
+	var y = bits[2],
+	    m = bits[0],
+	    d = bits[1];
+	
+	// Assume not leap year by default (note zero index for Jan)
+	var daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+	// If evenly divisible by 4 and not evenly divisible by 100,
+	// or is evenly divisible by 400, then a leap year
+  	if ((!(y % 4) && y % 100) || !(y % 400)) {
+		daysInMonth[1] = 29;
+	}
+	return !(/\D/.test(String(d))) && d > 0 && d <= daysInMonth[--m]
+}
+
+function setupCalendars(inputFieldId, buttonId) {
+	Calendar.setup({
+        inputField     :    inputFieldId,      // id of the input field
+        ifFormat       :    "%m/%d/%Y",       // format of the input field
+        showsTime      :    false,            // will display a time selector
+        button         :    buttonId,   // trigger for the calendar (button ID)
+        singleClick    :    true,           // single-click mode
+        step           :    1                // show all years in drop-down boxes (instead of every other year as default)
+    });
+}
+
+function attachExistingPersonChangeHandlers() {
+	jQuery("#existingPerson_searchButton").on("click", function() {
+		jQuery("#existingPerson_liveSearchInput").show();
+		jQuery("#existingPerson_liveSearchInput").focus();
+		if (jQuery("#existingPerson_span").text().length > 0) {
+			jQuery("#existingPerson_liveSearchInput").val(jQuery("#existingPerson_span").text());
+		}
+		jQuery("#existingPerson_undoButton").show();
+		jQuery("#existingPerson_searchButton").hide();
+		jQuery("#existingPerson_deleteButton").hide();
+		jQuery("#existingPerson_span").hide();
+	});
+
+	jQuery("#existingPerson_undoButton").on("click", function() {
+		jQuery("#existingPerson_liveSearchInput").hide();
+		jQuery("#existingPerson_undoButton").hide();
+		jQuery("#existingPerson_searchButton").show();
+		jQuery("#existingPerson_deleteButton").show();
+		jQuery("#existingPerson_span").show();
+	});
+
+	jQuery("#existingPerson_deleteButton").on("click", function() {
+		jQuery("#existingPerson_span").text("");
+		jQuery("#existingPerson_liveSearchInput").val("");
+		jQuery("#pid").val("");
+	});
+
+	jQuery.widget("custom.tablecomplete", jQuery.ui.autocomplete, {
+		_create: function() {
+			this._super();
+			this.widget().menu("option", "items", "> tr:not(.ui-autocomplete-header)");
+		},
+		_renderMenu(ul, items) {
+			var self = this;
+			//table definitions
+			var t = jQuery("<table>", {
+				id: 'existingPerson_liveSearchResultMainTable',
+				class: 'grid',
+				summary: 'summary',
+				border: 1
+			}).appendTo(ul);
+			t.append(jQuery("<thead>"));
+			t.find("thead").append(jQuery("<tr>", {
+				class: "ui-autocomplete-header"
+			}));
+			var row = t.find("tr");
+			jQuery("<th>").html("Select Existing Person").appendTo(row);
+		    jQuery("<tbody>").appendTo(t);
+		    jQuery.each(items, function(index, item) {
+				self._renderItemData(ul, t.find("tbody"), item);
+			});
+		},
+		_renderItemData(ul, table, item) {
+			return this._renderItem(table, item).data("ui-autocomplete-item", item);
+		},
+		_renderItem(table, item) {
+			var rowId = "TR_existingPerson_" + item.value;
+			var rowName = "TR_existingPerson_" + item.label;
+
+			var row = jQuery("<tr>", {
+				class: "ui-menu-item",
+				role: "presentation",
+				id: rowId,
+				name: rowName
+			});
+
+			var anchor = jQuery("<span>", {
+				class: "searchTableClickableLink",
+				title: "Select search result value " + item.label,
+				mouseenter: function() {
+					jQuery(this).css({
+						"color": "#EA2B1B",
+						"font-weight":"normal"
+					});
+				},
+				mouseleave: function() {
+					jQuery(this).css({
+						"color": "#2A568F",
+						"font-weight":"normal"
+					});
+				}
+			}).html(item.label);
+
+		    jQuery("<td>").append(anchor).appendTo(row);
+
+			return row.appendTo(table);
+		}
+	});
+
+	function _doFocusStuff(event, ui) {
+		return false;
+	}
+
+	// create the autocomplete
+	var autocomplete = jQuery("#existingPerson_liveSearchInput").tablecomplete({
+		minLength: 1,
+		source: availableTags,
+		select: function (event, ui) {
+			jQuery("#pid").val(ui.item.value);
+			jQuery("#existingPerson_span").text(ui.item.label);
+			jQuery("#existingPerson_liveSearchInput").hide();
+			jQuery("#existingPerson_undoButton").hide();
+			jQuery("#existingPerson_searchButton").show();
+			jQuery("#existingPerson_deleteButton").show();
+			jQuery("#existingPerson_span").show();
+		},
+		focus: _doFocusStuff
+	});
+
+	// get a handle on it's UI view
+	var autocomplete_handle = autocomplete.data("ui-autocomplete");
+
+}
+
+function addAutocompleteStyles() {
+
+	var style = `<style>
+    .ui-state-hover, .ui-widget-content .ui-state-hover, .ui-widget-header .ui-state-hover, .ui-state-focus, .ui-widget-content .ui-state-focus, .ui-widget-header .ui-state-focus {
+        background-color: white;
+        color: red;
+        cursor:pointer;
+        font-family:"Bitstream Vera Sans", Arial, Verdana, sans-serif, Helvetica;
+        font-weight: normal;;
+        font-size:14px;
+	}
+
+	table.mp-etk-grid tbody tr td, table.grid tbody tr td {
+	    color: #2A568F;
+	}
+}
+
+</style>`;
+
+	jQuery(".contentContainer").append(style);
+
+}
+
+function exportData(objName) {
+    let params = {
+		"objectName" : objName
+	}
+    let AJAX_URL = "com.epa.dashboard.reporting.dataExport.ajax";
+	window.location.href = AJAX_URL + "&" + jQuery.param(params);
+
+	alert("Download in progress");
+}
+
+</script>
+</body>
+</html>

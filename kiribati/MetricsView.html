@@ -1,0 +1,1908 @@
+<link href="web-pub/cbs/js/jquery-ui-1.12.1/jquery-ui.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+<link href="page.resource.request.do?name=com.epa.common.css.cbs-bootstrap" rel="stylesheet" />
+<link href="page.resource.request.do?name=com.epa.dashboard.metrics.css.metrics" rel="stylesheet" />
+
+<link type="text/css" rel="stylesheet" href="web-pub/cbs/js/nv/nv.d3.min.css">
+<link type="text/css" rel="stylesheet" href="web-pub/cbs/js/jQueryDataTables/DataTables-1.10.16/css/jquery.dataTables.min.css">
+<link type="text/css" rel="stylesheet" href="web-pub/cbs/js/jQueryDataTables/Buttons-1.5.1/css/buttons.dataTables.min.css">
+
+<script src="web-pub/aearchitecture/jquery-ui-1.11.4/js/jquery.min.js"></script>
+<script src="web-pub/aearchitecture/jquery-ui-1.11.4/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="web-pub/aearchitecture/d3/d3.min.js"></script>
+<script type="text/javascript" src="web-pub/cbs/js/nv/nv.d3.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="web-pub/cbs/js/jQueryDataTables/DataTables-1.10.16/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="web-pub/cbs/js/jQueryDataTables/Buttons-1.5.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" src="web-pub/cbs/js/jQueryDataTables/JSZip-2.5.0/jszip.min.js"></script>
+<script type="text/javascript" src="web-pub/cbs/js/jQueryDataTables/Buttons-1.5.1/js/buttons.html5.min.js"></script>
+
+<style>
+    #rapbackTbl tr td:first-child {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+    #rapbackStatusData {
+        font-size: smaller;
+    }
+</style>
+
+<script>
+    let jQ = jQuery.noConflict();
+</script>
+
+#if ($type == "dashboard")
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="onboarding">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-inboxes" viewBox="0 0 16 16">
+                        <path d="M4.98 1a.5.5 0 0 0-.39.188L1.54 5H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0A.5.5 0 0 1 10 5h4.46l-3.05-3.812A.5.5 0 0 0 11.02 1H4.98zm9.954 5H10.45a2.5 2.5 0 0 1-4.9 0H1.066l.32 2.562A.5.5 0 0 0 1.884 9h12.234a.5.5 0 0 0 .496-.438L14.933 6zM3.809.563A1.5 1.5 0 0 1 4.981 0h6.038a1.5 1.5 0 0 1 1.172.563l3.7 4.625a.5.5 0 0 1 .105.374l-.39 3.124A1.5 1.5 0 0 1 14.117 10H1.883A1.5 1.5 0 0 1 .394 8.686l-.39-3.124a.5.5 0 0 1 .106-.374L3.81.563zM.125 11.17A.5.5 0 0 1 .5 11H6a.5.5 0 0 1 .5.5 1.5 1.5 0 0 0 3 0 .5.5 0 0 1 .5-.5h5.5a.5.5 0 0 1 .496.562l-.39 3.124A1.5 1.5 0 0 1 14.117 16H1.883a1.5 1.5 0 0 1-1.489-1.314l-.39-3.124a.5.5 0 0 1 .121-.393zm.941.83.32 2.562a.5.5 0 0 0 .497.438h12.234a.5.5 0 0 0 .496-.438l.32-2.562H10.45a2.5 2.5 0 0 1-4.9 0H1.066z"/>
+                    </svg>
+                    <span class="metrics-name">Onboarding Metrics</span>
+                </div>
+                <div class="card-body">
+                    <table id="onboardingTbl" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Metric</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          <tr class="info">
+                              <td>&nbsp;</td>
+                              <td colspan="3">Timeliness (Quantity)</td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="investigation">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-binoculars" viewBox="0 0 16 16">
+                        <path d="M3 2.5A1.5 1.5 0 0 1 4.5 1h1A1.5 1.5 0 0 1 7 2.5V5h2V2.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5v2.382a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V14.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 14.5v-3a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5v3A1.5 1.5 0 0 1 5.5 16h-3A1.5 1.5 0 0 1 1 14.5V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V2.5zM4.5 2a.5.5 0 0 0-.5.5V3h2v-.5a.5.5 0 0 0-.5-.5h-1zM6 4H4v.882a1.5 1.5 0 0 1-.83 1.342l-.894.447A.5.5 0 0 0 2 7.118V13h4v-1.293l-.854-.853A.5.5 0 0 1 5 10.5v-1A1.5 1.5 0 0 1 6.5 8h3A1.5 1.5 0 0 1 11 9.5v1a.5.5 0 0 1-.146.354l-.854.853V13h4V7.118a.5.5 0 0 0-.276-.447l-.895-.447A1.5 1.5 0 0 1 12 4.882V4h-2v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V4zm4-1h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5V3zm4 11h-4v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V14zm-8 0H2v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V14z"></path>
+                    </svg>
+                    <span class="metrics-name">Investigation Metrics</span>
+                </div>
+                <div class="card-body">
+                    <table id="investigationTbl" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Metric</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="info">
+                            <td>&nbsp;</td>
+                            <td colspan="3">Timeliness (Quantity)</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="adjudication">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+                    <span class="metrics-name">Adjudication Metrics</span>
+                </div>
+                <div class="card-body">
+                    <table id="adjudicationTbl" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Metric</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="info">
+                            <td>&nbsp;</td>
+                            <td colspan="3">Timeliness (Quantity)</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="rapback">
+                <div class="card-header bg-primary bg-gradient" style="cursor: default">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-lock" viewBox="0 0 16 16">
+                        <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+                    </svg>
+                    <span class="metrics-name">RapBack Statuses</span>
+                </div>
+                <div class="card-body">
+                    <table id="rapbackTbl" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Percentage</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tfoot></tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="rapback-2">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-body-text" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                    <span class="metrics-name">RapBack Metrics</span>
+                </div>
+                <div class="card-body">
+                    <table id="rapbackTbl-2" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Metric</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr class="info">
+                            <td>&nbsp;</td>
+                            <td colspan="3">Timeliness (Quantity)</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="card shadow-lg rounded" id="psbAction">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+                    <span class="metrics-name">PSB Actions</span>
+                </div>
+            </div>
+            <div class="card shadow-lg rounded" id="nonSelectAndRemoval" style="margin-top:20px">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clipboard-check" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M10.854 7.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7.5 9.793l2.646-2.647a.5.5 0 0 1 .708 0z"/>
+                        <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                        <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+                    </svg>
+                    <span class="metrics-name">Non-Selects and Removals by Reason</span>
+                </div>
+            </div>
+            <div class="card shadow-lg rounded" id="dcsaCe" style="margin-top:20px">
+                <div class="card-header bg-primary bg-gradient">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-body-text" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                    <span class="metrics-name">DCSA CE Metrics</span>
+                </div>
+                <div class="card-body">
+                    <table id="dcsaCeTbl" class="summaryTable">
+                        <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Low</th>
+                            <th>Public Trust</th>
+                            <th>Sensitive</th>
+                            <th>Total Active Personnel</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div id="rapbackStatusData" style="display: none">
+                <div class="card shadow-lg rounded" id="rapbackStatusDetails" style="margin-top:20px">
+                    <div class="d-flex card-header bg-primary bg-gradient">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm15 2h-4v3h4zm0 4h-4v3h4zm0 4h-4v3h3a1 1 0 0 0 1-1zm-5 3v-3H6v3zm-5 0v-3H1v2a1 1 0 0 0 1 1zm-4-4h4V8H1zm0-4h4V4H1zm5-3v3h4V4zm4 4H6v3h4z"/>
+                        </svg>
+                        <span class="metrics-name">Rapback Status Details</span>
+                        <div class="text-end">
+                            <button id="detailClose" type="button" class="btn-close" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="records_table" class="display stripe">
+                            <thead>
+                            <tr>
+                                <th>Person ID</th>
+                                <th>Case ID</th>
+                                <th>Name</th>
+                                <th>Rapback Status</th>
+                                <th>Rapback Status Date</th>
+                                <th>Applicant Type</th>
+                                <th>Case Status</th>
+                                <th>Workflow Status</th>
+                                <th>Cleared To Onboard</th>
+                                <th>Error Message</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    let onboardingSummaryData = JSON.parse('$onboardingSummaryData');
+    let investigationSummaryData = JSON.parse('$investigationSummaryData');
+    let adjudicationSummaryData = JSON.parse('$adjudicationSummaryData');
+    let rapbackSummaryData = JSON.parse('$rapbackSummaryData');
+    let rapbackData = JSON.parse('$rapbackData');
+    let dcsaCeSummaryData = JSON.parse('$dcsaCeSummaryData');
+    let table;
+
+    jQuery(function() {
+        jQuery("#titleDisplay").remove();
+
+        jQuery("#onboarding .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=onboarding";
+        });
+
+        jQuery("#investigation .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=investigation";
+        });
+
+        jQuery("#adjudication .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=adjudication";
+        });
+
+        jQuery("#rapback-2 .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=rapback";
+        });
+
+        jQuery("#psbAction .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=psbAction";
+        });
+
+        jQuery("#nonSelectAndRemoval .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=nonSelectAndRemoval";
+        });
+
+        jQuery("#dcsaCe .card-header").on("click", function() {
+            window.location.href = "page.request.do?page=page.dashboard.metrics.form.ui&type=dcsaCe";
+        });
+
+        populateTable(onboardingSummaryData, investigationSummaryData, adjudicationSummaryData, rapbackSummaryData, dcsaCeSummaryData);
+
+        //Populate the rapback data section
+        let active = rapbackData[0].ACTIVE_PERSONNEL;
+
+        let readyPct = ((rapbackData[0].READY/active)*100).toFixed(2);        
+        let failedFiPct = ((rapbackData[0].FAILED_FINGERPRINT_ISSUE/active)*100).toFixed(2);
+        let failedDdPct = ((rapbackData[0].FAILED_DATA_DISCREPANCY/active)*100).toFixed(2);
+        let attemptedPct = ((rapbackData[0].ATTEMPTED/active)*100).toFixed(2);
+        let enrolledPct = ((rapbackData[0].ENROLLED/active)*100).toFixed(2);
+        let unenrolledPct = ((rapbackData[0].UNENROLLED/active)*100).toFixed(2);
+        let submitForUnenrollmentPct = ((rapbackData[0].SUBMIT_FOR_UNENROLLMENT/active)*100).toFixed(2);
+        let unenrollmentFailedPct = ((rapbackData[0].UNENROLLMENT_FAILED/active)*100).toFixed(2);
+        let notpopulatedPct = ((rapbackData[0].NOT_POPULATED/active)*100).toFixed(2);
+
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.readyForEnrollment">Ready for Enrollment</td> <td>${rapbackData[0].READY}</td><td>${readyPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.failedEnrollment" data-code-reason="code.fingerprintIssue">Failed - Unclassifiable FP</td> <td>${rapbackData[0].FAILED_FINGERPRINT_ISSUE}</td><td>${failedFiPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.failedEnrollment" data-code-reason="code.dataDiscrepancy">Failed - Data Discrepancy</td> <td>${rapbackData[0].FAILED_DATA_DISCREPANCY}</td><td>${failedDdPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.attemptedEnrollment">Attempted Enrollment</td> <td>${rapbackData[0].ATTEMPTED}</td><td>${attemptedPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.enrolled">Enrolled</td> <td>${rapbackData[0].ENROLLED}</td><td>${enrolledPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.unenrolled">Unenrolled</td> <td>${rapbackData[0].UNENROLLED}</td><td>${unenrolledPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.submitForUnenrollment">Submit for Unenrollment</td> <td>${rapbackData[0].SUBMIT_FOR_UNENROLLMENT}</td><td>${submitForUnenrollmentPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="code.unenrollmentFailed">Unenrollment Failed</td> <td>${rapbackData[0].UNENROLLMENT_FAILED}</td><td>${unenrollmentFailedPct}</td></tr>`);
+        jQuery("#rapbackTbl tbody").append(`<tr> <td data-code="blank">Not Populated</td> <td>${rapbackData[0].NOT_POPULATED}</td><td>${notpopulatedPct}</td></tr>`);
+
+        jQuery("#rapbackTbl tfoot").append(`<tr><td data-code="all"># Active Personnel: </td><td>${active}</td><td>&nbsp;</td></tr>`);
+        /*
+        createRapbackChart();
+        createEnrollmentChart();
+         */
+        jQ("#rapbackTbl tr td:first-child").on("click", function(e) {
+            loadDataTable(jQuery(this).attr("data-code"), jQuery(this).attr("data-code-reason"));
+        });
+
+        jQ("#detailClose").on("click", function(e) {
+            jQ("#rapbackStatusData").hide();
+        })
+
+    });
+
+    function loadDataTable(rapbackStatus, rapbackStatusReason) {
+        //show the table
+        jQ('#rapbackStatusData').css("display", "block");
+
+        let RAPBACK_STATUS_AJAX = (rapbackStatusReason === undefined)
+            ? `page.request.do?page=page.dashboard.metrics.form.ui.ajax&type=rapbackStatus&status=${rapbackStatus}`
+            : `page.request.do?page=page.dashboard.metrics.form.ui.ajax&type=rapbackStatus&status=${rapbackStatus}&statusReason=${rapbackStatusReason}`;
+
+        table = jQ('#rapbackStatusData #records_table').DataTable( {
+            responsive: true,
+            paging: true,
+            destroy: true,
+            dom: 'Bfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: 'Export to Excel',
+                    exportOptions: {
+                        format: {
+                            body: function ( data, row, column, node ) {
+                                switch (column) {
+                                    case 0:
+                                        //Strip out html tags because it's a link
+                                        return data.replaceAll(/<.*?>/g, '');
+                                    case 1:
+                                        //Strip out html tags because it's a link
+                                        return data.replaceAll(/<.*?>/g, '');
+                                    case 4 :
+                                        if (data.length > 0) {
+                                            return formatDate(new Date(data));
+                                        }
+                                    case 8 :
+                                        if (data.length > 0) {
+                                            return formatDate(new Date(data));
+                                        }
+                                    default :
+                                        return data
+                                }
+                            }
+                        }
+                    }
+                }
+            ],
+            ajax: {
+                "type": "POST",
+                "url": RAPBACK_STATUS_AJAX,
+                "dataSrc" : function (json) {
+                    // manipulate your data (json)
+                    //console.log(jQ.parseJSON(json));
+                    return jQ.parseJSON(json);
+                }
+            },
+            columns: [
+                { width: "13%", "data": "PERSONID" },
+                { width: "12%", "data": "CASEID" },
+                { width: "15%", "data": "NAME" },
+                { width: "10%", "data": "RAPBACKSTATUS" },
+                { width: "10%", "data": "RAPBACKSTATUSDATE",
+                    "render": function(data, type) {
+                        if (data !== null && data !== undefined) {
+                            if (type === "sort") {
+                                return new Date(data).getTime();
+                            }
+                            return new Date(data).toLocaleDateString();
+                        }
+                        return data;
+                    }},
+                { width: "8%", "data": "APPLICANTTYPE"},
+                { width: "8%", "data": "CASESTATUS"},
+                { width: "8%", "data": "WORKFLOWSTATUS"},
+                { width: "8%", "data": "CLEAREDDATE",
+                    "render": function(data, type) {
+                        if (data !== null && data !== undefined) {
+                            if (type === "sort") {
+                                return new Date(data).getTime();
+                            }
+                            return new Date(data).toLocaleDateString();
+                        }
+                        return data;
+                    }},
+                { width: "8%", "data": "ERRORMSG"}
+            ],
+            columnDefs: [
+                {
+                    targets: [0],
+                    render: function (data, type, row, meta) { return '<a href="workflow.do?dataObjectKey=object.person&trackingId=' + row.PID + '" target="_blank">' + data + '</a>'}
+                },
+                {
+                    targets: [1],
+                    render: function (data, type, row, meta) { return '<a href="workflow.do?dataObjectKey=object.case&trackingId=' + row.CID + '" target="_blank">' + data + '</a>'}
+                }
+            ],
+            "order" : [[ 2, "asc" ]]
+        });
+        resize();
+
+    }
+
+    function resize() {
+        var height = jQ(document).height();
+
+        if (height > jQ(window).height()) {
+            window.parent.postMessage([ "setHeight", height + 120,
+                "rapbackStatusData" ], "*");
+        }
+    }
+
+    function formatDate(date) {
+        var d = new Date(date),
+            month = '' + (d.getMonth() + 1),
+            day = '' + d.getDate(),
+            year = d.getFullYear();
+
+        if (month.length < 2)
+            month = '0' + month;
+        if (day.length < 2)
+            day = '0' + day;
+
+        return [year, month, day].join('-');
+    }
+
+    function createRapbackChart() {
+
+        let height = 250;
+        let width = 250;
+
+        /*
+        nv.addGraph(function() {
+            var chart = nv.models.pieChart()
+                .x(function(d) { return d.LABEL })
+                .y(function(d) { return d.VALUE })
+                .margin({ top:40, right:50, bottom: 40, left: 50 })
+                .showLabels(true)     //Display pie labels
+                .showLegend(true)
+                .labelType("percent") //Configure what type of data to show in the label. Can be "key", "value" or "percent"
+                .valueFormat(d3.format('0'))
+                //.width(width)
+                //.height(height)
+                .color(['#98FB98', '#FFA07A'])
+                .donut(true)          //Turn on Donut mode. Makes pie chart look tasty!
+                .donutRatio(0.35)     //Configure how big you want the donut hole size to be.
+                .showTooltipPercent(false);
+
+            d3.select("#rapback-enrollment-chart")
+                .datum($rapbackEnrollmentData)
+                .transition().duration(1200)
+                //.attr('width', width)
+                //.attr('height', height)
+                .call(chart);
+
+            return chart;
+        });
+
+         */
+
+        nv.addGraph(function() {
+            var chart = nv.models.multiBarHorizontalChart()
+                .x(function(d) { return d.label })
+                .y(function(d) { return d.value })
+                .margin({ top:20, right:50, bottom: 40, left: 150 })
+                .height(250)
+                .showLegend(false)
+                .showControls(false)
+                .showValues(true);
+
+
+            chart.yAxis
+                .axisLabel('Totals')
+                .tickFormat(d3.format("d"));
+
+            chart.valueFormat(d3.format('d'));
+
+            d3.select("#rapback-chart")
+                .datum(JSON.parse('$!rapbackData'))
+                .transition().duration(1200)
+                .call(chart);
+
+            nv.utils.windowResize(chart.update);
+            /*
+            chart.multibar.dispatch.on("elementClick", function(e) {
+                loadTable(e.data.label);
+            });
+             */
+            return chart;
+        });
+    }
+
+    function createEnrollmentChart() {
+
+        let width = 1060,
+            height = 80,
+            margin = {top: 5, right: 40, bottom: 20, left: 120};
+
+        let summaryChart = nv.models.bulletChart()
+            //.width(width - margin.right - margin.left)
+            //.height(height - margin.top - margin.bottom);
+            .height(80);
+
+        dataWithLabels =
+            [
+                {
+                    "title": "Onboarding",
+                    "subtitle": "#Days, Last 30",
+                    "ranges": [8, 10, 27],
+                    "measures": [11],
+                    //"markers": [12, 6],
+                    /*"markerLines":[240, 120],*/
+                    "markerLabels": ['Target', 'Threshold'],
+                    /*"markerLineLabels":['Break even Inventory', 'Threshold Inventory'],*/
+                    //"rangeLabels": ['Min', 'Mean', 'Max'],
+                    "measureLabels": ['Current']
+                },
+            ];
+
+        let onboarding = d3.select("#rapback-enrollment-chart").selectAll("svg")
+            .data(dataWithLabels)
+            .enter().append('svg')
+            .attr('class', "bullet nvd3")
+            .attr("width", width)
+            .attr("height", height);
+
+        onboarding.transition().duration(1000).call(summaryChart);
+    }
+
+    function populateTable(d1, d2, d3, d4, d5) {
+
+        let m1 = d1[0].MONTH;
+        let m2 = d1[1].MONTH;
+        let m3 = d1[2].MONTH;
+
+        let m4 = d2[0].MONTH;
+        let m5 = d2[1].MONTH;
+        let m6 = d2[2].MONTH;
+
+        let m7 = d3[0].MONTH;
+        let m8 = d3[1].MONTH;
+        let m9 = d3[2].MONTH;
+
+        let m10 = d4[0].MONTH;
+        let m11 = d4[1].MONTH;
+        let m12 = d4[2].MONTH;
+
+        jQuery("#onboardingTbl thead tr")
+            .append(jQuery("<th>").html(m1))
+            .append(jQuery("<th>").html(m2))
+            .append(jQuery("<th>").html(m3));
+
+        jQuery("#onboardingTbl tbody")
+            .append(createRow("eFile Complete",                 d1[0].EFILECOMPLETE,        d1[1].EFILECOMPLETE,        d1[2].EFILECOMPLETE,        d1[0].EFILECOMPLETECNT,     d1[1].EFILECOMPLETECNT,     d1[2].EFILECOMPLETECNT ))
+            .append(createRow("USAccess Sponsored",             d1[0].SPONSORED,            d1[1].SPONSORED,            d1[2].SPONSORED,            d1[0].SPONSOREDCNT,         d1[1].SPONSOREDCNT,         d1[2].SPONSOREDCNT ))
+            .append(createRow("USAccess Enrollment",            d1[0].ENROLLED,             d1[1].ENROLLED,             d1[2].ENROLLED,             d1[0].ENROLLEDCNT,          d1[1].ENROLLEDCNT,          d1[2].ENROLLEDCNT ))
+            .append(createRow("FP Requested",                   d1[0].FPREQUESTED,          d1[1].FPREQUESTED,          d1[2].FPREQUESTED,          d1[0].FPREQUESTEDCNT,       d1[1].FPREQUESTEDCNT,       d1[2].FPREQUESTEDCNT ))
+            .append(createRow("FP Received",                    d1[0].FPRECEIVED,           d1[1].FPRECEIVED,           d1[2].FPRECEIVED,           d1[0].FPRECEIVEDCNT,        d1[1].FPRECEIVEDCNT,        d1[2].FPRECEIVEDCNT ))
+            .append(createRow("Unclassifiable FP Received",     d1[0].UNCLASSIFIABLEFPCNT,  d1[1].UNCLASSIFIABLEFPCNT,  d1[2].UNCLASSIFIABLEFPCNT,  d1[0].UNCLASSIFIABLEFPCNT,  d1[1].UNCLASSIFIABLEFPCNT,  d1[2].UNCLASSIFIABLEFPCNT ))
+            .append(createRow("Reciprocity",                    d1[0].RECIPROCITY,          d1[1].RECIPROCITY,          d1[2].RECIPROCITY,          d1[0].RECIPROCITYCNT,       d1[1].RECIPROCITYCNT,       d1[2].RECIPROCITYCNT ))
+            .append(createRow("eAPP Completion",                d1[0].EQIPCOMPLETE,         d1[1].EQIPCOMPLETE,         d1[2].EQIPCOMPLETE,         d1[0].EQIPCOMPLETECNT,      d1[1].EQIPCOMPLETECNT,      d1[2].EQIPCOMPLETECNT ))
+            .append(createRow("eAPP Release",                   d1[0].EQIPRELEASE,          d1[1].EQIPRELEASE,          d1[2].EQIPRELEASE,          d1[0].EQIPRELEASECNT,       d1[1].EQIPRELEASECNT,       d1[2].EQIPRELEASECNT ))
+            .append(createRow("Onboarded",                      d1[0].ONBOARDED,            d1[1].ONBOARDED,            d1[2].ONBOARDED,            d1[0].ONBOARDEDCNT,         d1[1].ONBOARDEDCNT,         d1[2].ONBOARDEDCNT ));
+
+        jQuery("#onboardingTbl tfoot")
+            .append(createStaticRow("# Cases Cleared To Onboard:", d1[0].TOTALCASES, d1[1].TOTALCASES, d1[2].TOTALCASES));
+
+        jQuery("#investigationTbl thead tr")
+            .append(jQuery("<th>").html(m4))
+            .append(jQuery("<th>").html(m5))
+            .append(jQuery("<th>").html(m6));
+
+        jQuery("#investigationTbl tbody")
+            .append(createRow("Applicant Completion",     d2[0].APPLICANTCOMPLETE,   d2[1].APPLICANTCOMPLETE,  d2[2].APPLICANTCOMPLETE,  d2[0].APPLICANTCOMPLETECNT,   d2[1].APPLICANTCOMPLETECNT,  d2[2].APPLICANTCOMPLETECNT ))
+            .append(createRow("Specialist Assigned",      d2[0].SPECIALISTASSIGNED,  d2[1].SPECIALISTASSIGNED, d2[2].SPECIALISTASSIGNED, d2[0].SPECIALISTASSIGNEDCNT,  d2[1].SPECIALISTASSIGNEDCNT, d2[2].SPECIALISTASSIGNEDCNT ))
+            .append(createRow("Intake Completion",        d2[0].INTAKECOMPLETE,      d2[1].INTAKECOMPLETE,     d2[2].INTAKECOMPLETE,     d2[0].INTAKECOMPLETECNT,      d2[1].INTAKECOMPLETECNT,     d2[2].INTAKECOMPLETECNT ))
+            .append(createRow("Fingerprints Completion",  d2[0].FPCOMPLETE,          d2[1].FPCOMPLETE,         d2[2].FPCOMPLETE,         d2[0].FPCOMPLETECNT,          d2[1].FPCOMPLETECNT,         d2[2].FPCOMPLETECNT ))
+            .append(createRow("ROI Received",             d2[0].ROI,                 d2[1].ROI,                d2[2].ROI,                d2[0].ROICNT,                 d2[1].ROICNT,                d2[2].ROICNT ))
+            .append(createRow("eAPP Completion",          d2[0].EQIPCOMPLETE,        d2[1].EQIPCOMPLETE,       d2[2].EQIPCOMPLETE,       d2[0].EQIPCOMPLETECNT,        d2[1].EQIPCOMPLETECNT,       d2[2].EQIPCOMPLETECNT ))
+            .append(createRow("Released To DCSA",         d2[0].DCSA,                d2[1].DCSA,               d2[2].DCSA,               d2[0].DCSACNT,                d2[1].DCSACNT,               d2[2].DCSACNT ))
+            .append(createRow("Reciprocity Cases",        d2[0].RECIPROCITYCNT,      d2[1].RECIPROCITYCNT,     d2[2].RECIPROCITYCNT,     d2[0].RECIPROCITYCNT,         d2[1].RECIPROCITYCNT,        d2[2].RECIPROCITYCNT ))
+            .append(createRow("SAC Cases",                d2[0].SACCNT,              d2[1].SACCNT,             d2[2].SACCNT,             d2[0].SACCNT,                 d2[1].SACCNT,                d2[2].SACCNT ));
+
+        jQuery("#investigationTbl tfoot")
+            .append(createStaticRow("# Cases Cleared To Onboard:", d2[0].TOTALCASES, d2[1].TOTALCASES, d2[2].TOTALCASES));
+
+        jQuery("#adjudicationTbl thead tr")
+            .append(jQuery("<th>").html(m7))
+            .append(jQuery("<th>").html(m8))
+            .append(jQuery("<th>").html(m9));
+
+        jQuery("#adjudicationTbl tbody")
+            .append(createStaticRow("Pending Adjudications",   d3[0].PENDINGADJUDICATIONS,   d3[1].PENDINGADJUDICATIONS,    d3[2].PENDINGADJUDICATIONS))
+            .append(createStaticRow("Completed Adjudications", d3[0].COMPLETEDADJUDICATIONS, d3[1].COMPLETEDADJUDICATIONS,  d3[2].COMPLETEDADJUDICATIONS))
+            .append(createRow("Adjudication Queue",            d3[0].TIMESPENTINQUEUE,       d3[1].TIMESPENTINQUEUE,        d3[2].TIMESPENTINQUEUE,    d3[0].TIMESPENTINQUEUECNT,     d3[1].TIMESPENTINQUEUECNT,    d3[2].TIMESPENTINQUEUECNT ))
+            .append(createRow("Initial To Final",              d3[0].INITIALADJUDICATION,    d3[1].INITIALADJUDICATION,     d3[2].INITIALADJUDICATION, d3[0].INITIALADJUDICATIONCNT,  d3[1].INITIALADJUDICATIONCNT, d3[2].INITIALADJUDICATIONCNT ))
+            .append(createRow("Final To Completed",            d3[0].FINALADJUDICATION,      d3[1].FINALADJUDICATION,       d3[2].FINALADJUDICATION,   d3[0].FINALADJUDICATIONCNT,    d3[1].FINALADJUDICATIONCNT,   d3[2].FINALADJUDICATIONCNT ))
+            .append(createRow("Initial To Completed",          d3[0].TIMETOADJUDICATE,       d3[1].TIMETOADJUDICATE,        d3[2].TIMETOADJUDICATE,    d3[0].TIMETOADJUDICATECNT,     d3[1].TIMETOADJUDICATECNT,    d3[2].TIMETOADJUDICATECNT ));
+
+        jQuery("#adjudicationTbl tfoot")
+            .append(createStaticRow("# Adjudications:", d3[0].TOTALADJUDICATIONS, d3[1].TOTALADJUDICATIONS, d3[2].TOTALADJUDICATIONS));
+
+        jQuery("#rapbackTbl-2 thead tr")
+            .append(jQuery("<th>").html(m10))
+            .append(jQuery("<th>").html(m11))
+            .append(jQuery("<th>").html(m12));
+
+        jQuery("#rapbackTbl-2 tbody")
+            .append(createStaticRow("Enrollment Confirmations Received", d4[0].CONFIRMATIONS_RECEIVED,  d4[1].CONFIRMATIONS_RECEIVED,  d4[2].CONFIRMATIONS_RECEIVED))
+            .append(createStaticRow("Rapsheets Received",                d4[0].RAPSHEETS_RECEIVED,      d4[1].RAPSHEETS_RECEIVED,      d4[2].RAPSHEETS_RECEIVED))
+            .append(createStaticRow("Rapsheets In Review",               d4[0].RAPSHEETS_REVIEW,        d4[1].RAPSHEETS_REVIEW,        d4[2].RAPSHEETS_REVIEW))
+            .append(createRow("Rapsheets Adjudicated",                   d4[0].DAYS_TO_ADJUDICATE,             d4[1].DAYS_TO_ADJUDICATE,             d4[2].DAYS_TO_ADJUDICATE,             d4[0].ADJUDICATED,             d4[1].ADJUDICATED,             d4[2].ADJUDICATED              ))
+            .append(createRow("Rapsheets Favorably Adjudicated",         d4[0].DAYS_TO_FAVORABLY_ADJUDICATE,   d4[1].DAYS_TO_FAVORABLY_ADJUDICATE,   d4[2].DAYS_TO_FAVORABLY_ADJUDICATE,   d4[0].FAVORABLY_ADJUDICATED,   d4[1].FAVORABLY_ADJUDICATED,   d4[2].FAVORABLY_ADJUDICATED    ))
+            .append(createRow("Rapsheets Unfavorably Adjudicated",       d4[0].DAYS_TO_UNFAVORABLY_ADJUDICATE, d4[1].DAYS_TO_UNFAVORABLY_ADJUDICATE, d4[2].DAYS_TO_UNFAVORABLY_ADJUDICATE, d4[0].UNFAVORABLY_ADJUDICATED, d4[1].UNFAVORABLY_ADJUDICATED, d4[2].UNFAVORABLY_ADJUDICATED  ))
+            .append(createStaticRow("LOIs/LOAs/LOWs Sent",               d4[0].LOI_LOW_LOA_SENT,        d4[1].LOI_LOW_LOA_SENT,        d4[2].LOI_LOW_LOA_SENT))
+            .append(createStaticRow("Personnel Terminated",              d4[0].TERMINATED,              d4[1].TERMINATED,              d4[2].TERMINATED));
+
+        /*
+        jQuery("#rapbackTbl-2 tfoot")
+            .append(createStaticRow("# Cases Cleared To Onboard:", d4[0].TOTALCASES, d4[1].TOTALCASES, d4[2].TOTALCASES));
+         */
+
+         jQuery("#dcsaCeTbl tbody")
+            .append(createStaticRow("Total Personnel",      d5[0].LOW_SUM,   d5[0].PUBLIC_TRUST_SUM,    d5[0].SENSITIVE_SUM,    d5[0].ALL_ACTIVE_SUM))
+            .append(createStaticRow("# Enrolled",           d5[1].LOW_SUM,   d5[1].PUBLIC_TRUST_SUM,    d5[1].SENSITIVE_SUM,    d5[1].ALL_ACTIVE_SUM))
+            .append(createStaticRow("% Enrolled",           d5[2].LOW_SUM,   d5[2].PUBLIC_TRUST_SUM,    d5[2].SENSITIVE_SUM,    d5[2].ALL_ACTIVE_SUM));
+    }
+
+    function createStaticRow(title, x1, x2, x3, x4) {
+        let row = jQuery("<tr>")
+            .append(jQuery("<td>").html(title))
+            .append(jQuery("<td>").html(x1 ))
+            .append(jQuery("<td>").html(x2 ))
+            .append(jQuery("<td>").html(x3 ));
+
+        if(x4 != undefined) {
+            row.append(jQuery("<td>").html(x4 ));
+        }
+
+        return row;
+    }
+
+    function createRow(title, x1, x2, x3, y1, y2, y3) {
+
+        let n1 = formatNumber(x1);
+        let n2 = formatNumber(x2);
+        let n3 = formatNumber(x3);
+
+        let n4 = (n1 !== "-") ? "(" + formatNumber(y1, false) + ")" : "";
+        let n5 = (n2 !== "-") ? "(" + formatNumber(y2, false) + ")" : "";
+        let n6 = (n3 !== "-") ? "(" + formatNumber(y3, false) + ")" : "";
+
+        return jQuery("<tr>")
+            .append(jQuery("<td>").html(title))
+            .append(jQuery("<td>").html(n1 + " " + n4 ))
+            .append(jQuery("<td>").html(n2 + " " + n5 ))
+            .append(jQuery("<td>").html(n3 + " " + n6 ));
+    }
+
+
+    function formatNumber(num, fixed = true) {
+        if (!num) {
+            return "-"
+        } else {
+            return fixed ? (num*100/100).toFixed(1) : num;
+        }
+    }
+
+</script>
+
+#else
+
+#set ($ytd_start = $preselectedDates.get('ytd_start'))
+#set ($ytd_end   = $preselectedDates.get('ytd_end'))
+
+#set ($mtd_start = $preselectedDates.get('mtd_start'))
+#set ($mtd_end   = $preselectedDates.get('mtd_end'))
+
+#set ($wtd_start = $preselectedDates.get('wtd_start'))
+#set ($wtd_end   = $preselectedDates.get('wtd_end'))
+
+#set ($qtd_start = $preselectedDates.get('qtd_start'))
+#set ($qtd_end   = $preselectedDates.get('qtd_end'))
+
+#set ($l30   = $preselectedDates.get('last_30'))
+#set ($l60   = $preselectedDates.get('last_60'))
+#set ($l90   = $preselectedDates.get('last_90'))
+
+#set ($summary_start   = $preselectedDates.get('summary_start'))
+
+#set ($current   = $preselectedDates.get('current_date'))
+
+#set ($infoIcon = '
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"></path>
+    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"></path>
+</svg>')
+
+<div class="container">
+    <div class="row">
+        <div class="col-3 params shadow-lg rounded bg-secondary">
+            <div class="bc" style="font-size: 12px">
+                <nav style="--bs-breadcrumb-divider: '|';" aria-label="breadcrumb">
+                    <ol class="breadcrumb justify-content-center align-items-center">
+                        <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-border-all" viewBox="0 0 16 16">
+                                <path d="M0 0h16v16H0V0zm1 1v6.5h6.5V1H1zm7.5 0v6.5H15V1H8.5zM15 8.5H8.5V15H15V8.5zM7.5 15V8.5H1V15h6.5z"/>
+                            </svg>
+                        </a></li>
+
+                        #if ($type == "onboarding")
+                          <li class="breadcrumb-item active" aria-current="page">Onboarding</li>
+                        #else
+                          <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=onboarding">Onboarding</a></li>
+                        #end
+
+                        #if ($type == "investigation")
+                          <li class="breadcrumb-item active" aria-current="page">Investigation</li>
+                        #else
+                          <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=investigation">Investigation</a></li>
+                        #end
+
+                        #if ($type == "adjudication")
+                          <li class="breadcrumb-item active" aria-current="page">Adjudication</li>
+                        #else
+                          <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=adjudication">Adjudication</a></li>
+                        #end
+
+                        #if ($type == "rapback")
+                        <li class="breadcrumb-item active" aria-current="page">Rapback</li>
+                        #else
+                        <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=rapback">Rapback</a></li>
+                        #end
+
+                        #if ($type == "psbAction")
+                        <li class="breadcrumb-item active" aria-current="page">PSB Action</li>
+                        #else
+                        <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=psbAction">PSB Action</a></li>
+                        #end
+
+                        #if ($type == "nonSelectAndRemoval")
+                        <li class="breadcrumb-item active" aria-current="page">Non-Selects and Removals by Reason</li>
+                        #else
+                        <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=nonSelectAndRemoval">Non-Selects and Removals by Reason</a></li>
+                        #end
+
+                        #if ($type == "dcsaCe")
+                        <li class="breadcrumb-item active" aria-current="page">DCSA CE</li>
+                        #else
+                        <li class="breadcrumb-item"><a href="page.request.do?page=page.dashboard.metrics.form.ui&type=dcsaCe">DCSA CE</a></li>
+                        #end
+                    </ol>
+                </nav>
+            </div>
+            <div class="epa-logo">
+                <img src="page.request.do?page=common.utility.imageServe&image=epaLogo" alt="Environmental Protection Agency">
+            </div>
+            <div class="row justify-content-center align-items-center" style="height: 75px">
+                <div class="btn-group btn-group-sm text-center">
+                    <button type="button" class="btn btn-outline-primary active" id="tbl-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-table" viewBox="0 0 16 16">
+                            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+                        </svg>
+                        <span class="visually-hidden">Table</span>
+                    </button>
+                    #if ($type != "psbAction" && $type != "nonSelectAndRemoval")
+                    <button type="button" class="btn btn-outline-primary" id="pie-chart-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pie-chart" viewBox="0 0 16 16">
+                            <path d="M7.5 1.018a7 7 0 0 0-4.79 11.566L7.5 7.793V1.018zm1 0V7.5h6.482A7.001 7.001 0 0 0 8.5 1.018zM14.982 8.5H8.207l-4.79 4.79A7 7 0 0 0 14.982 8.5zM0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8z"></path>
+                        </svg>
+                        <span class="visually-hidden">Pie Chart</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-primary" id="bar-chart-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                            <path d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1V2zm1 12h2V2h-2v12zm-3 0V7H7v7h2zm-5 0v-3H2v3h2z"/>
+                        </svg>
+                        <span class="visually-hidden">Bar Chart</span>
+                    </button>
+                    #end
+                </div>
+            </div>
+            #if($type != "dcsaCe")
+                <div>
+                    <hr/>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRangeWtd" value="wtd">
+                            <label class="form-check-label" for="dateRangeWtd">
+                                Week To Date
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRangeMtd" value="mtd">
+                            <label class="form-check-label" for="dateRangeMtd">
+                                Month To Date
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRangeQtd" value="qtd">
+                            <label class="form-check-label" for="dateRangeQtd">
+                                Quarter To Date
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRangeYtd" value="ytd">
+                            <label class="form-check-label" for="dateRangeYtd">
+                                Year To Date
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRange30" value="l30">
+                            <label class="form-check-label" for="dateRange30">
+                                Last 30 Days
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRange60" value="l60">
+                            <label class="form-check-label" for="dateRange60">
+                                Last 60 Days
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="dateRange" id="dateRange90" value="l90">
+                            <label class="form-check-label" for="dateRange90">
+                                Last 90 Days
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <hr/>
+                </div>
+                <div class="d-flex flex-row bd-highlight row">
+                    <div class="col-4 p-2 bd-highlight dateRange"><label for="startDate">Start Date:</label></div>
+                    <div class="col-8 p-2 bd-highlight"><input type="date" id="startDate" name="start-date" min="2021-01-01" value="$summary_start"/></div>
+                </div>
+                <div class="d-flex flex-row bd-highlight row">
+                    <div class="col-4 p-2 bd-highlight dateRange"><label for="endDate">End Date:</label></div>
+                    <div class="col-8 p-2 bd-highlight"><input type="date" id="endDate" name="end-date" min="2021-01-01" value="$current"/></div>
+                </div>
+            #end
+            #if ($type != "rapback" && $type != "psbAction" && $type != "nonSelectAndRemoval" && $type != "dcsaCe")
+                <div>
+                    <hr/>
+                </div>
+                #if ($type != "adjudication")
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="dateToUse" id="ctoDate" value="cto" checked>
+                    <label class="form-check-label" for="ctoDate">
+                        Use Cleared To Onboard Date
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="dateToUse" id="createdDate" value="created">
+                    <label class="form-check-label" for="createdDate">
+                        Use Case Created Date
+                    </label>
+                </div>
+                #end
+                <div>
+                    <hr/>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="calcType" id="calcAvg" value="avg">
+                    <label class="form-check-label" for="calcAvg">
+                        Use Average
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="calcType" id="calcMedian" value="median" checked>
+                    <label class="form-check-label" for="calcMedian">
+                        Use Median
+                    </label>
+                </div>
+                <div>
+                    <hr/>
+                </div>
+                #if ($type == "adjudication")
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="groupBy" id="groupByAdjudicator" value="1" checked>
+                    <label class="form-check-label" for="groupByAdjudicator">
+                        Group By Adjudicator
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="groupBy" id="groupByType" value="2">
+                    <label class="form-check-label" for="groupByType">
+                        Group By Investigation Type
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="groupBy" id="groupByCode" value="3">
+                    <label class="form-check-label" for="groupByCode">
+                        Group By Seriousness Code
+                    </label>
+                </div>
+                <div>
+                    <hr/>
+                </div>
+                #end
+                <div class="row">
+                    <div class="col-5">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="" id="threshold-enabled" checked>
+                            <label for="threshold-enabled" class="form-check-label">Threshold (%):</label>
+                        </div>
+                    </div>
+                    <div class="col-7">
+                        <input class="form-control threshold" type="text" id="threshold" value="15" style="height: 20px; width:40px;"/>
+                    </div>
+                </div>
+                <div>
+                    <hr/>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="casesInProgress" checked>
+                    <label class="form-check-label" for="casesInProgress">
+                        Include Active - In Progress Cases
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="casesComplete" checked>
+                    <label class="form-check-label" for="casesComplete">
+                        Include Active - Complete Cases
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="casesInactive" checked>
+                    <label class="form-check-label" for="casesInactive">
+                        Include Inactive Cases
+                    </label>
+                </div>
+                <div>
+                    <hr/>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="separated">
+                    <label class="form-check-label" for="separated">
+                        Exclude Separated Personnel
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="notHired">
+                    <label class="form-check-label" for="notHired">
+                        Exclude Not Hired Personnel
+                    </label>
+                </div>
+            #end
+            <div class="buttons">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-1x2" viewBox="0 0 16 16">
+                            <path d="M6 1H1v14h5V1zm9 0h-5v5h5V1zm0 9v5h-5v-5h5zM0 1a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1zm9 0a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1V1zm1 8a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1h-5z"/>
+                        </svg>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=onboarding">Onboarding Metrics</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=investigation">Investigation Metrics</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=adjudication">Adjudication Metrics</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=rapback">Rapback Metrics</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=psbAction">PSB Action</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=nonSelectAndRemoval">Non-Selects and Removals by Reason</a></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=dcsaCe">DCSA CE</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="page.request.do?page=page.dashboard.metrics.form.ui&type=dashboard">Dashboard</a></li>
+                    </ul>
+                </div>
+                <button id="generateBtn" action="process" type="button" class="btn btn-primary">Update Metrics</button>
+                <button id="exportBtn" action="export" type="button" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-download" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"></path>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="col-9">
+            <table id="dataTbl" class="styled-table caption-top shadow-lg rounded" style="width: 100%">
+                <caption>
+                    <div class="row">
+                        <div class="col-10" style="padding-top: 10px">
+                            #if ($type != "dcsaCe")
+                                Metrics Dashboard - <span id="startDisplay"></span> - <span id="endDisplay"></span>
+                            #else 
+                                Metrics Dashboard
+                            #end
+                        </div>
+                        <div class="col-2">
+                            <div style="display:block; width:100%; text-align:right">
+                                <button id="refreshBtn" type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#refreshModal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-database" viewBox="0 0 16 16">
+                                        <path d="M4.318 2.687C5.234 2.271 6.536 2 8 2s2.766.27 3.682.687C12.644 3.125 13 3.627 13 4c0 .374-.356.875-1.318 1.313C10.766 5.729 9.464 6 8 6s-2.766-.27-3.682-.687C3.356 4.875 3 4.373 3 4c0-.374.356-.875 1.318-1.313ZM13 5.698V7c0 .374-.356.875-1.318 1.313C10.766 8.729 9.464 9 8 9s-2.766-.27-3.682-.687C3.356 7.875 3 7.373 3 7V5.698c.271.202.58.378.904.525C4.978 6.711 6.427 7 8 7s3.022-.289 4.096-.777A4.92 4.92 0 0 0 13 5.698ZM14 4c0-1.007-.875-1.755-1.904-2.223C11.022 1.289 9.573 1 8 1s-3.022.289-4.096.777C2.875 2.245 2 2.993 2 4v9c0 1.007.875 1.755 1.904 2.223C4.978 15.71 6.427 16 8 16s3.022-.289 4.096-.777C13.125 14.755 14 14.007 14 13V4Zm-1 4.698V10c0 .374-.356.875-1.318 1.313C10.766 11.729 9.464 12 8 12s-2.766-.27-3.682-.687C3.356 10.875 3 10.373 3 10V8.698c.271.202.58.378.904.525C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777A4.92 4.92 0 0 0 13 8.698Zm0 3V13c0 .374-.356.875-1.318 1.313C10.766 14.729 9.464 15 8 15s-2.766-.27-3.682-.687C3.356 13.875 3 13.373 3 13v-1.302c.271.202.58.378.904.525C4.978 12.71 6.427 13 8 13s3.022-.289 4.096-.777c.324-.147.633-.323.904-.525Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </caption>
+                <thead>
+                <tr class="bg-primary bg-gradient text-white">
+                    #if ($type == "onboarding")
+                    <th sort-col="1" sort-dir="asc" scope="col">Program Office</th>
+                    <th sort-col="2" sort-dir="asc" scope="col"># Cases</th>
+                    <th sort-col="3" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date case was created to date case transitioned to Intake Forms Review Queue">eFile Completion <br/>$infoIcon</span></th>
+                    <th sort-col="4" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date case transitioned to Intake Forms Review Queue to date of sponsorship in USAccess">USAccess Sponsored <br/>$infoIcon</span></th>
+                    <th sort-col="5" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date of sponsorship in USAccess to date of enrollment complete in USAccess">USAccess Enrollment <br/>$infoIcon</span></th>
+                    <th sort-col="6" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date of enrollment complete in USAccess to Fingerprints submitted date in USAccess">FP Requested <br/>$infoIcon</span></th>
+                    <th sort-col="7" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Fingerprint submitted date in USAccess to crosswalk date received from eDelivery">FP Received <br/>$infoIcon</span></th>
+                    <th sort-col="8" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date case transitioned to Intake Forms Review Queue to date Record Check was created with 'Reciprocity can be applied?' set to Yes">Reciprocity <br/>$infoIcon</span></th>
+                    <th sort-col="9" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date case transitioned to Intake Forms Review Queue to date eQip was initiated">eAPP Completion <br/>$infoIcon</span></th>
+                    <th sort-col="10" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date eQip was initiated to date eQip was completed">eAPP Release <br/>$infoIcon</span></th>
+                    <th sort-col="11" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date case was created to date Cleared To Onboard">Onboarded <br/>$infoIcon</span></th>
+                    #elseif ($type == "investigation")
+                    <th sort-col ="1" sort-dir="asc" scope="col">Specialist</th>
+                    <th sort-col ="2" sort-dir="asc" scope="col">Specialist Program Office/Region</th>
+                    <th sort-col ="3" sort-dir="asc" scope="col"># Cases</th>
+                    <th sort-col ="4" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date from Intake Initiation to Intake Forms Review Queue">Applicant Completion <br/>$infoIcon</span></th>
+                    <th sort-col ="5" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date from when entered Intake Forms Review Queue to date specialist was assigned">Specialist Assigned <br/>$infoIcon</span></th>
+                    <th sort-col ="6" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date from Initial Intake Review to Record Checks">Intake Completion <br/>$infoIcon</span></th>
+                    <th sort-col ="7" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date from Fingerprints Received to Pre-Screening Queue">Fingerprints Completion <br/>$infoIcon</span></th>
+                    <th sort-col ="8" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Date released to NBIB to ROI Received">ROI Received <br/>$infoIcon</span></th>
+                    <th sort-col ="9" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="eQIP initiated to eQIP completed by applicant">eAPP Completion <br/>$infoIcon</span></th>
+                    <th sort-col ="10" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="eQIP completion date to released to DCSA">Released To DCSA <br/>$infoIcon</span></th>
+                    <th sort-col ="10" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Count of Reciprocity Case records">Reciprocity Cases <br/>$infoIcon</span></th>
+                    <th sort-col ="10" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Count of SAC Case records">SAC Cases <br/>$infoIcon</span></th>
+                    #elseif ($type == "adjudication")
+                    <th sort-col="1" sort-dir="asc" scope="col">Adjudicator</th>
+                    <th sort-col="2" sort-dir="asc" scope="col"># Adjudications</th>
+                    <th sort-col="3" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of pending adjudications">Pending Adjudications <br/>$infoIcon</span></th>
+                    <th sort-col="4" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of completed adjudications">Completed Adjudications <br/>$infoIcon</span></th>
+                    <th sort-col="5" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Avg days spent in the Adjudication Queue before an adjudicator is assigned">Adjudication Queue <br/>$infoIcon</span></th>
+                    <th sort-col="6" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Avg days it took to sent to Final Adjudication once an adjudicator is assigned">Initial to Final <br/>$infoIcon</span></th>
+                    <th sort-col="7" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Avg days it took to complete adjudication once sent for Final Adjudication">Final to Completed <br/>$infoIcon</span></th>
+                    <th sort-col="8" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Avg days it took to complete adjudication once adjudicator was assigned">Initial to Completed <br/>$infoIcon</span></th>
+                    #elseif ($type == "rapback")
+                    <th sort-col="1" sort-dir="asc" scope="col">Charge Description</th>
+                    <th sort-col="2" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total # of Rapsheets received"># Received <br/>$infoIcon</span></th>
+                    <th sort-col="3" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Adjudication code != '99"># Adjudicated <br/>$infoIcon</span></th>
+                    <th sort-col="4" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Adjudication code in ('01','02','03','12')"># Favorable <br/>$infoIcon</span></th>
+                    <th sort-col="5" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Adjudication code in ('04','05','06','07','08','09','10')"># Unfavorable <br/>$infoIcon</span></th>
+                    <th sort-col="6" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Adjudication code in ('07','10')"># LOI / LOA / LOW Sent <br/>$infoIcon</span></th>
+                    <th sort-col="7" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Adjudication code in ('06','09','10')"># Terminated <br/>$infoIcon</span></th>
+                    #elseif ($type == "psbAction")
+                    <th sort-col="1" sort-dir="asc" scope="col">Program Office / Region</th>
+                    <th sort-col="1" sort-dir="asc" scope="col">Non-Selects</th>
+                    <th sort-col="1" sort-dir="asc" scope="col">Removed after Cleared to Onboard</th>
+                    <th sort-col="1" sort-dir="asc" scope="col">OPM Referrals</th>
+                    <th sort-col="1" sort-dir="asc" scope="col">SEAD3 Referrals</th>
+                    #elseif ($type == "nonSelectAndRemoval")
+                    <th sort-col="1" sort-dir="asc" scope="col">Reason</th>
+                    <th sort-col="1" sort-dir="asc" scope="col" style="text-align: center;">Non-Select</th>
+                    <th sort-col="1" sort-dir="asc" scope="col" style="text-align: center;">Removal</th>
+                    <th sort-col="1" sort-dir="asc" scope="col" style="text-align: center;">Clearance Denials</th>
+                    #elseif ($type == "dcsaCe")
+                    <th sort-col="1" sort-dir="asc" scope="col">Program Office / Region</th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Risk Level = 'Low'">Low - Total <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Risk Level = 'Low' and CE Enrollment Status = 'Enrolled'">Low - Enrolled <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of active personnel with Risk Level = 'Low' and CE Enrollment Status = 'Enrolled'">Low - Enrolled % <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Sensitivity Level = 'Non-Sensitive' and Risk Level in ('Moderate', 'High')">Public Trust - Total <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Sensitivity Level = 'Non-Sensitive' and Risk Level in ('Moderate', 'High') and CE Enrollment Status = 'Enrolled'">Public Trust - Enrolled <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of active personnel with Sensitivity Level = 'Non-Sensitive' and Risk Level in ('Moderate', 'High') and CE Enrollment Status = 'Enrolled'">Public Trust - Enrolled % <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Sensitivity Level in ('Non-Critical Sensitive', 'Critical Sensitive', 'Special Sensitive')">Sensitive - Total <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of active personnel with Sensitivity Level in ('Non-Critical Sensitive', 'Critical Sensitive', 'Special Sensitive') and CE Enrollment Status = 'Enrolled')">Sensitive - Enrolled <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of active personnel with Sensitivity Level in ('Non-Critical Sensitive', 'Critical Sensitive', 'Special Sensitive') and CE Enrollment Status = 'Enrolled'">Sensitive - Enrolled % <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of all active personnel">All <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Total number of all active personnel with CE Enrollment Status = 'Enrolled'">All - Enrolled <br/>$infoIcon</span></th>
+                    <th sort-col="1" sort-dir="asc" scope="col"><span data-bs-toggle="tooltip" data-bs-placement="bottom" title="Percentage of all active personnel with CE Enrollment Status = 'Enrolled'">All - Enrolled % <br/>$infoIcon</span></th>
+                    #end
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot class="table-light">
+                </tfoot>
+            </table>
+            <div class="chart shadow-lg rounded bg-secondary" id="pie-chart" style="display:none;">
+                <svg ></svg>
+            </div>
+            <div class="chart shadow-lg rounded bg-secondary" id="bar-chart" style="display:none;">
+                <svg ></svg>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal For DB Refresh Button-->
+<div class="modal fade" id="refreshModal" tabindex="-1" aria-labelledby="refreshModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="refreshModalLabel">Database View Refresh</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancel"></button>
+            </div>
+            <div class="modal-body">
+                This will refresh the database view with the latest metrics data, which could take several
+                minutes. Do you wish to proceed?
+            </div>
+            <div class="modal-footer">
+                <button id="refreshYes" type="button" class="btn btn-primary">Yes</button>
+                <button id="refreshNo" type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="overlay"></div>
+
+<script type="text/javascript">
+
+    let type = "$type";
+
+    let BASE_URL = "page.request.do?page=page.dashboard.metrics.form.ui.ajax";
+    let AJAX_URL    = BASE_URL + "&type=" + type;
+    let REFRESH_URL = BASE_URL + "&type=refresh";
+
+    jQuery("#refreshYes").on("click", function(e) {
+        jQuery("#refreshModal").modal("hide");
+
+        jQuery.ajax({
+            url: REFRESH_URL,
+            async: true,
+            success: function (response) {
+                let result = JSON.parse(response);
+                if (!result.refreshDb) {
+                    alert("Refresh Failed with message: " + result.message);
+                } else {
+                    jQuery("#generateBtn").trigger('click');
+                }
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("jqXHR:" + jqXHR);
+            console.log("TextStatus: " + textStatus);
+            console.log("ErrorThrown: " + errorThrown);
+        });
+    });
+
+    jQuery('#generateBtn, #exportBtn').on('click', function(e) {
+
+        let operationType = jQuery(this).attr("action");
+
+        #if ($type != "rapback" && $type != "psbAction" && $type != "nonSelectAndRemoval" && $type != "dcsaCe")
+            let isValid = jQuery('#casesInProgress').is(':checked') || jQuery('#casesComplete').is(':checked') || jQuery('#casesInactive').is(':checked');
+
+            if (!isValid) {
+                alert('Invalid Selection');
+                return;
+            }
+        #end
+
+        var params = getParams(operationType);
+
+        if (operationType === "process") {
+            callAjax("table", params);
+            #if ($type != "psbAction" && $type != "nonSelectAndRemoval")
+                callAjax("pieChart", params);
+                callAjax("barChart", params);
+            #end
+            
+        } else if (operationType === "export") {
+            let exportUrl = AJAX_URL + "&" + jQuery.param(params);
+            e.preventDefault();
+            window.location.href = exportUrl;
+        }
+    });
+
+    function getParams(operationType) {
+        return {
+            "operationType"   : operationType,
+            "startDate"       : jQuery('#startDate').val(),
+            "endDate"         : jQuery('#endDate').val(),
+            "groupBy"         : jQuery('input[name=groupBy]:checked').val(),  //only on adjudication metrics
+            "calcType"        : jQuery('input[name=calcType]:checked').val(),
+            "casesInProgress" : jQuery('#casesInProgress').is(':checked'),
+            "casesComplete"   : jQuery('#casesComplete').is(':checked'),
+            "casesInactive"   : jQuery('#casesInactive').is(':checked'),
+            "separated"       : jQuery('#separated').is(':checked'),
+            "notHired"        : jQuery('#notHired').is(':checked'),
+            "dateToUse"       : jQuery('input[name=dateToUse]:checked').val()
+        }
+
+    }
+
+    function callAjax(action, params) {
+
+        if (action === "pieChart") {
+            params.operationType = "pieChart";
+        } else if (action === "barChart") {
+            params.operationType = "barChart";
+        }
+
+        jQuery.ajax({
+            url: AJAX_URL,
+            async: true,
+            data: params,
+            success: function (response) {
+                let jsonData = JSON.parse(response);
+                if (action === "table") {
+                    populateTable(jsonData);
+                } else if (action === "pieChart") {
+                    updateChart("pie",jsonData);
+                } else if (action === "barChart") {
+                    updateChart("bar",jsonData);
+                }
+            }
+        }).done(function () {
+            updateDisplayDates();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log("jqXHR:" + jqXHR);
+            console.log("TextStatus: " + textStatus);
+            console.log("ErrorThrown: " + errorThrown);
+        });
+    }
+
+    jQuery(document).on({
+        ajaxStart: function(){
+            jQuery("body").addClass("loading");
+        },
+        ajaxStop: function(){
+            setTimeout(
+                function()
+                {
+                    jQuery("body").removeClass("loading");
+                }, 1000);
+        }
+    });
+
+    jQuery('input[name=dateRange]').on('change', function() {
+        let x = jQuery(this).val();
+        let sDate = jQuery('#startDate');
+        let eDate = jQuery('#endDate');
+        switch (x) {
+            case 'ytd':
+                sDate.val('$ytd_start');
+                eDate.val('$ytd_end');
+                break;
+            case 'wtd':
+                sDate.val('$wtd_start');
+                eDate.val('$wtd_end');
+                break;
+            case 'mtd':
+                sDate.val('$mtd_start');
+                eDate.val('$mtd_end');
+                break;
+            case 'qtd':
+                sDate.val('$qtd_start');
+                eDate.val('$qtd_end');
+                break;
+            case 'l30':
+                sDate.val('$l30');
+                eDate.val('$current');
+                break;
+            case 'l60':
+                sDate.val('$l60');
+                eDate.val('$current');
+                break;
+            case 'l90':
+                sDate.val('$l90');
+                eDate.val('$current');
+                break;
+        }
+    });
+
+    function updateDisplayDates() {
+        if(jQuery('#startDate').length > 0 && jQuery('#endDate').length > 0) {
+            var date1 = jQuery('#startDate').val().split("-");
+            var date2 = jQuery('#endDate').val().split("-");
+
+            let startDate = [date1[1], date1[2], date1[0]].join('/');
+            let endDate   = [date2[1], date2[2], date2[0]].join('/');
+
+            jQuery('#startDisplay').html(startDate);
+            jQuery('#endDisplay').html(endDate);
+        }
+    }
+
+    function populateTable(jsonData) {
+        let tBody = jQuery("#dataTbl tbody");
+        let tFoot = jQuery("#dataTbl tfoot");
+
+        tBody.html("");
+        tFoot.html("");
+
+        if (type === "onboarding") {
+
+            for (let x in jsonData) {
+                if (jsonData.hasOwnProperty(x)) {
+
+                    let programOffice = jsonData[x].PROGRAMOFFICE;
+                    let totalCases = jsonData[x].TOTALCASES;
+                    let efileCompleted = jsonData[x].INTAKESUBMITTEDTOEFILECOMPLETE;
+                    let sponsored = jsonData[x].EFILECOMPLETEDTOSPONSORED;
+                    let enrollment = jsonData[x].SPONSOREDTOENROLLMENTCOMPLETE;
+                    let fpRequested = jsonData[x].ENROLLMENTCOMPLETETOFPREQUESTED;
+                    let fpReceived = jsonData[x].FPREQUESTEDTOFPRESULTSRECEIVED;
+                    let reciprocity = jsonData[x].EFILECOMPLETEDTORECIPACCEPTED;
+                    let eqipComplete = jsonData[x].EFILECOMPLETEDTOEQIPINVITESENT;
+                    let eqipRelease = jsonData[x].EQIPINVITETOEQIPRELEASEDTOAGENCY;
+                    let clearedToOnboard = jsonData[x].CLEAREDTOONBOARD;
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_" + programOffice + "\">" + programOffice + "</td>" +
+                        "<td class=\"totalCases\">" + totalCases + "</td>" +
+                        "<td class=\"efileCompleted\">" + formatNumber(efileCompleted) + "</td>" +
+                        "<td class=\"sponsored\">" + formatNumber(sponsored) + "</td>" +
+                        "<td class=\"enrollment\">" + formatNumber(enrollment) + "</td>" +
+                        "<td class=\"fpRequested\">" + formatNumber(fpRequested) + "</td>" +
+                        "<td class=\"fpReceived\">" + formatNumber(fpReceived) + "</td>" +
+                        "<td class=\"reciprocity\">" + formatNumber(reciprocity) + "</td>" +
+                        "<td class=\"eqipComplete\">" + formatNumber(eqipComplete) + "</td>" +
+                        "<td class=\"eqipRelease\">" + formatNumber(eqipRelease) + "</td>" +
+                        "<td class=\"clearedToOnboard\">" + formatNumber(clearedToOnboard) + "</td>"
+                    );
+                    if (jsonData[x].PROGRAMOFFICE === "TOTAL") {
+                        tFoot.append(tableRow);
+                        flagRows("efileCompleted", efileCompleted);
+                        flagRows("sponsored", sponsored);
+                        flagRows("enrollment", enrollment);
+                        flagRows("fpRequested", fpRequested);
+                        flagRows("fpReceived", fpReceived);
+                        flagRows("reciprocity", reciprocity);
+                        flagRows("eqipComplete", eqipComplete);
+                        flagRows("eqipRelease", eqipRelease);
+                        flagRows("clearedToOnboard", clearedToOnboard);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+        } else if (type === "investigation") {
+            for(let x in jsonData) {
+                if (jsonData[x].SPECIALIST !== undefined) {
+
+                    let specialist          = jsonData[x].SPECIALIST;
+                    let specialistProgram   = jsonData[x].SPECIALISTPROGRAMOFFICE;
+                    let totalCases          = jsonData[x].TOTALCASES ? jsonData[x].TOTALCASES : "-";
+                    let applicantCompleted  = jsonData[x].INTAKESUBMITTEDTOAPPLICANTCOMPLETED;
+                    let intakeReview        = jsonData[x].APPLICANTECOMPLETEDTOINTAKEREVIEW;
+                    let intakeCompleted     = jsonData[x].INTAKEREVIEWTORECORDSCHECK;
+                    let preScreening        = jsonData[x].FINGERPRINTSRECEIVEDTOPRESCREENING;
+                    let roiReceived         = jsonData[x].NBIBTOROIRECEIVED;
+                    let eqipCompletion      = jsonData[x].EQIPCOMPLETION;
+                    let releasedToDcsa      = jsonData[x].RELEASEDTODCSA;
+                    let reciprocityCase     = jsonData[x].RECIPROCITYCASE;
+                    let sacCase             = jsonData[x].SACCASE;
+
+                    let prog  = !specialistProgram ? "" : specialistProgram;
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_"+ specialist + "\">"  + specialist            + "</td>" +
+                        "<td class=\"programOffice\" style=\"text-align: left;\">"  + prog     + "</td>" +
+                        "<td class=\"totalCases\">"         + totalCases                       + "</td>" +
+                        "<td class=\"applicantCompleted\">" + formatNumber(applicantCompleted) + "</td>" +
+                        "<td class=\"intakeReview\">"       + formatNumber(intakeReview)       + "</td>" +
+                        "<td class=\"intakeCompleted\">"    + formatNumber(intakeCompleted)    + "</td>" +
+                        "<td class=\"preScreening\">"       + formatNumber(preScreening)       + "</td>" +
+                        "<td class=\"roiReceived\">"        + formatNumber(roiReceived)        + "</td>" +
+                        "<td class=\"eqipCompletion\">"     + formatNumber(eqipCompletion)     + "</td>" +
+                        "<td class=\"releasedToDcsa\">"     + formatNumber(releasedToDcsa)     + "</td>" + 
+                        "<td class=\"reciprocityCase\">"    + formatNumber(reciprocityCase)    + "</td>" + 
+                        "<td class=\"sacCase\">"            + formatNumber(sacCase)            + "</td>"
+                    );
+
+                    if (jsonData[x].SPECIALIST === "TOTAL") {
+                        tFoot.append(tableRow);
+                        flagRows("applicantCompleted", applicantCompleted);
+                        flagRows("intakeReview",intakeReview);
+                        flagRows("intakeCompleted",intakeCompleted);
+                        flagRows("preScreening",preScreening);
+                        flagRows("roiReceived",roiReceived);
+                        flagRows("eqipCompletion",eqipCompletion);
+                        flagRows("releasedToDcsa",releasedToDcsa);
+                        flagRows("reciprocityCase",reciprocityCase);
+                        flagRows("sacCase",sacCase);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+        } else if (type === "adjudication") {
+
+            let columnHeader = jQuery('input[name=groupBy]:checked').val();
+
+            if (columnHeader === "2") {
+                jQuery(".styled-table thead th:first-child").html("Investigation Type")
+            } else if (columnHeader === "3") {
+                jQuery(".styled-table thead th:first-child").html("Seriousness Code")
+            } else {
+                jQuery(".styled-table thead th:first-child").html("Adjudicator")
+            }
+
+            for(let x in jsonData) {
+                if (jsonData[x].GROUPCOL !== undefined) {
+
+                    let groupCol    = jsonData[x].GROUPCOL;
+                    let totalCases  = jsonData[x].TOTALADJUDICATIONS ? jsonData[x].TOTALADJUDICATIONS : "-";
+                    let pending     = jsonData[x].PENDINGADJUDICATIONS ? jsonData[x].PENDINGADJUDICATIONS : "-";
+                    let completed   = jsonData[x].COMPLETEDADJUDICATIONS ? jsonData[x].COMPLETEDADJUDICATIONS : "-";
+                    let timeInQueue = jsonData[x].TIMESPENTINQUEUE;
+                    let initial     = jsonData[x].INITIALADJUDICATION;
+                    let final       = jsonData[x].FINALADJUDICATION;
+                    let time        = jsonData[x].TIMETOADJUDICATE;
+
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_"+ groupCol + "\">"  + groupCol      + "</td>" +
+                        "<td class=\"totalCases\">"   + totalCases                 + "</td>" +
+                        "<td class=\"pending\">"      + pending                    + "</td>" +
+                        "<td class=\"completed\">"    + completed                  + "</td>" +
+                        "<td class=\"timeInQueue\">"  + formatNumber(timeInQueue)  + "</td>" +
+                        "<td class=\"initial\">"      + formatNumber(initial)      + "</td>" +
+                        "<td class=\"final\">"        + formatNumber(final)        + "</td>" +
+                        "<td class=\"time\">"         + formatNumber(time)         + "</td>"
+                    );
+
+                    if (jsonData[x].GROUPCOL === "TOTAL") {
+                        tFoot.append(tableRow);
+                        flagRows("timeInQueue", timeInQueue);
+                        flagRows("initial", initial);
+                        flagRows("final", final);
+                        flagRows("time",time);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+
+        } else if (type === "investigation") {
+
+            for(let x in jsonData) {
+                if (jsonData[x].GROUPCOL !== undefined) {
+
+                    let groupCol    = jsonData[x].GROUPCOL;
+                    let totalCases  = jsonData[x].TOTALADJUDICATIONS ? jsonData[x].TOTALADJUDICATIONS : "-";
+                    let pending     = jsonData[x].PENDINGADJUDICATIONS ? jsonData[x].PENDINGADJUDICATIONS : "-";
+                    let completed   = jsonData[x].COMPLETEDADJUDICATIONS ? jsonData[x].COMPLETEDADJUDICATIONS : "-";
+                    let timeInQueue = jsonData[x].TIMESPENTINQUEUE;
+                    let initial     = jsonData[x].INITIALADJUDICATION;
+                    let final       = jsonData[x].FINALADJUDICATION;
+                    let time        = jsonData[x].TIMETOADJUDICATE;
+
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_"+ groupCol + "\">"  + groupCol      + "</td>" +
+                        "<td class=\"totalCases\">"   + totalCases                 + "</td>" +
+                        "<td class=\"pending\">"      + pending                    + "</td>" +
+                        "<td class=\"completed\">"    + completed                  + "</td>" +
+                        "<td class=\"timeInQueue\">"  + formatNumber(timeInQueue)  + "</td>" +
+                        "<td class=\"initial\">"      + formatNumber(initial)      + "</td>" +
+                        "<td class=\"final\">"        + formatNumber(final)        + "</td>" +
+                        "<td class=\"time\">"         + formatNumber(time)         + "</td>"
+                    );
+
+                    if (jsonData[x].GROUPCOL === "TOTAL") {
+                        tFoot.append(tableRow);
+                        flagRows("timeInQueue", timeInQueue);
+                        flagRows("initial", initial);
+                        flagRows("final", final);
+                        flagRows("time",time);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+
+        } else if (type === "rapback") {
+            //console.log(jsonData);
+
+            for (let x in jsonData) {
+                if (jsonData.hasOwnProperty(x)) {
+
+                    let chargeDescription = jsonData[x].CHARGEDESCRIPTION;
+                    let rapsheetsReceived = jsonData[x].RAPSHEETSRECEIVED;
+                    let adjudicated = jsonData[x].ADJUDICATED;
+                    let favorablyadjudicated = jsonData[x].FAVORABLYADJUDICATED;
+                    let unfavorablyadjudicated = jsonData[x].UNFAVORABLYADJUDICATED;
+                    let loisloaslowssent = jsonData[x].LOISLOASLOWSSENT;
+                    let terminated = jsonData[x].TERMINATED;
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_" + chargeDescription + "\">" + chargeDescription + "</td>" +
+                        "<td class=\"rapsheetsReceived\">" + rapsheetsReceived + "</td>" +
+                        "<td class=\"adjudicated\">" + adjudicated + "</td>" +
+                        "<td class=\"favorablyAdjudicated\">" + favorablyadjudicated + "</td>" +
+                        "<td class=\"unfavorablyAdjudicated\">" + unfavorablyadjudicated + "</td>" +
+                        "<td class=\"loisLoasLowsSent\">" + loisloaslowssent + "</td>" +
+                        "<td class=\"terminated\">" + terminated + "</td>"
+                    );
+                    if (jsonData[x].CHARGEDESCRIPTION === "TOTAL") {
+                        tFoot.append(tableRow);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+        } else if (type === "psbAction") {
+            //console.log(jsonData);
+
+            //Calculating the totals here, so the same SQL is not executed twice in the ajax controller to get the totals
+            let totalNonSelect = 0;
+            let totalRemoval = 0;
+            let totalOpmReferral = 0;
+            let totalSead3Referral = 0;
+
+            for (let x in jsonData) {
+
+                if (jsonData.hasOwnProperty(x)) {
+
+                    let programOffice = jsonData[x].PROGRAM_OFFICE;
+                    let nonSelect = jsonData[x].NON_SELECT;
+                    let removal = jsonData[x].REMOVAL;
+                    let opmReferral = jsonData[x].OPM_REFERRAL;
+                    let sead3Referral = jsonData[x].SEAD3_REFERRAL;
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_" + programOffice + "\">" + programOffice + "</td>" +
+                        "<td class=\"nonSelect\">" + formatNumber(nonSelect) + "</td>" +
+                        "<td class=\"removal\">" + formatNumber(removal) + "</td>" +
+                        "<td class=\"opmReferral\">" + formatNumber(opmReferral) + "</td>" +
+                        "<td class=\"sead3Referral\">" + formatNumber(sead3Referral) + "</td>"
+                    );
+
+                    totalNonSelect += nonSelect;
+                    totalRemoval += removal;
+                    totalOpmReferral += opmReferral;
+                    totalSead3Referral += sead3Referral;
+
+                    tBody.append(tableRow);
+                }
+            }
+
+            //Add the totals to the footer
+            tFoot.append(jQuery("<tr>").append(
+                        "<td class=\"col_TOTAL\">TOTAL</td>" +
+                        "<td class=\"nonSelect\">" + formatNumber(totalNonSelect) + "</td>" +
+                        "<td class=\"removal\">" + formatNumber(totalRemoval) + "</td>" +
+                        "<td class=\"opmReferral\">" + formatNumber(totalOpmReferral) + "</td>" +
+                        "<td class=\"sead3Referral\">" + formatNumber(totalSead3Referral) + "</td>"
+            ));
+        } else if (type === "nonSelectAndRemoval") {
+            //console.log(jsonData);
+
+            for (let x in jsonData) {
+                if (jsonData.hasOwnProperty(x)) {
+
+                    let reason = jsonData[x].REASON;
+                    let nonSelect = jsonData[x].NON_SELECT;
+                    let removal = jsonData[x].REMOVAL;
+                    let clearanceDenials = jsonData[x].CLEARANCE_DENIALS;
+
+                    let tableRow = jQuery("<tr>").append(
+                        "<td class=\"col_" + reason + "\">" + reason + "</td>" +
+                        "<td class=\"nonSelect\">" + formatNumber(nonSelect) + "</td>" +
+                        "<td class=\"removal\">" + formatNumber(removal) + "</td>" + 
+                        "<td class=\"clearanceDenials\">" + formatNumber(clearanceDenials) + "</td>"
+                    );
+
+                    if (reason === "TOTAL") {
+                        tFoot.append(tableRow);
+                    } else {
+                        tBody.append(tableRow);
+                    }
+                }
+            }
+        } else if (type === "dcsaCe") {
+            //console.log(jsonData);
+
+            //Calculating the totals here, so the same SQL is not executed twice in the ajax controller to get the totals
+            let lowTotal = 0;
+            let lowEnrolledTotal = 0;
+
+            let publicTrustTotal = 0;
+            let publicTrustEnrolledTotal = 0;
+
+            let sensitiveTotal = 0;
+            let sensitiveEnrolledTotal = 0;
+
+            let allActiveTotal = 0;
+            let allActiveEnrolledTotal = 0;
+
+            for (let x in jsonData) {
+
+                if (jsonData[x] != null && jsonData.hasOwnProperty(x)) {
+
+                    let programOffice = jsonData[x].PROGRAM_OFFICE;
+
+                    let low = jsonData[x].LOW_TOTAL;
+                    let lowEnrolled = jsonData[x].LOW_ENROLLED;
+                    let lowEnrolledPercentage = jsonData[x].LOW_PERCENTAGE;
+
+                    let publicTrust = jsonData[x].PUBLIC_TRUST_TOTAL;
+                    let publicTrustEnrolled = jsonData[x].PUBLIC_TRUST_ENROLLED;
+                    let publicTrustEnrolledPercentage = jsonData[x].PUBLIC_TRUST_PERCENTAGE;
+                    
+                    let sensitive = jsonData[x].SENSITIVE_TOTAL;
+                    let sensitiveEnrolled = jsonData[x].SENSITIVE_ENROLLED;
+                    let sensitiveEnrolledPercentage = jsonData[x].SENSITIVE_PERCENTAGE;
+
+                    let allActive = jsonData[x].ALL_ACTIVE_TOTAL;
+                    let allActiveEnrolled = jsonData[x].ALL_ACTIVE_ENROLLED;
+                    let allActiveEnrolledPercentage = jsonData[x].ALL_ACTIVE_PERCENTAGE;
+
+                    let tableRow = jQuery("<tr>").append(
+                                        "<td class=\"col_" + programOffice + "\">" + programOffice + "</td>" +
+                                        "<td class=\"low\">" + formatNumber(low) + "</td>" +
+                                        "<td class=\"lowEnrolled\">" + formatNumber(lowEnrolled) + "</td>" +
+                                        "<td class=\"lowPercentage\">" + lowEnrolledPercentage + "</td>" +
+                                        "<td class=\"publicTrust\">" + formatNumber(publicTrust) + "</td>" +
+                                        "<td class=\"publicTrustEnrolled\">" + formatNumber(publicTrustEnrolled) + "</td>" +
+                                        "<td class=\"publicTrustPercentage\">" + publicTrustEnrolledPercentage + "</td>" +
+                                        "<td class=\"sensitive\">" + formatNumber(sensitive) + "</td>" +
+                                        "<td class=\"sensitiveEnrolled\">" + formatNumber(sensitiveEnrolled) + "</td>" +
+                                        "<td class=\"sensitivePercentage\">" + sensitiveEnrolledPercentage + "</td>" +
+                                        "<td class=\"allActive\">" + formatNumber(allActive) + "</td>" + 
+                                        "<td class=\"allActiveEnrolled\">" + formatNumber(allActiveEnrolled) + "</td>" +
+                                        "<td class=\"allActivePercentage\">" + allActiveEnrolledPercentage + "</td>"
+                    );
+
+                    lowTotal += low;
+                    lowEnrolledTotal += lowEnrolled;
+
+                    publicTrustTotal += publicTrust;
+                    publicTrustEnrolledTotal += publicTrustEnrolled;
+
+                    sensitiveTotal += sensitive;
+                    sensitiveEnrolledTotal += sensitiveEnrolled;
+
+                    allActiveTotal += allActive;
+                    allActiveEnrolledTotal += allActiveEnrolled;
+
+                    lowTotal
+
+                    tBody.append(tableRow);
+                }
+            }
+
+            //Add the totals to the footer
+            tFoot.append(jQuery("<tr>").append(
+                        "<td class=\"col_TOTAL\">TOTAL</td>" +
+                        "<td class=\"low\">" + formatNumber(lowTotal) + "</td>" +
+                        "<td class=\"lowEnrolled\">" + formatNumber(lowEnrolledTotal) + "</td>" +
+                        "<td class=\"lowPercentage\">" + (lowEnrolledTotal/lowTotal * 100).toFixed(1) + "</td>" +
+                        "<td class=\"publicTrust\">" + formatNumber(publicTrustTotal) + "</td>" +
+                        "<td class=\"publicTrustEnrolled\">" + formatNumber(publicTrustEnrolledTotal) + "</td>" +
+                        "<td class=\"publicTrustPercentage\">" + (publicTrustEnrolledTotal/publicTrustTotal * 100).toFixed(1) + "</td>" +
+                        "<td class=\"sensitive\">" + formatNumber(sensitiveTotal) + "</td>" +
+                        "<td class=\"sensitiveEnrolled\">" + formatNumber(sensitiveEnrolledTotal) + "</td>" +
+                        "<td class=\"sensitivePercentage\">" + (sensitiveEnrolledTotal/sensitiveTotal * 100).toFixed(1) + "</td>" +
+                        "<td class=\"allActive\">" + formatNumber(allActiveTotal) + "</td>" + 
+                        "<td class=\"allActiveEnrolled\">" + formatNumber(allActiveEnrolledTotal) + "</td>" +
+                        "<td class=\"allActivePercentage\">" + (allActiveEnrolledTotal/allActiveTotal * 100).toFixed(1) + "</td>"
+            ));
+        }
+    }
+
+    function flagRows(className, avg) {
+
+        if (jQuery("#threshold-enabled").is(":checked")) {
+            //let threshold = avg + (avg*0.10);
+            //let threshold = avg + (avg*(Number(jQuery( "#threshold-slider" ).slider( "value" ))/100));
+            let threshold = avg + (avg*(Number(jQuery("#threshold").val())/100));
+
+            jQuery("."+className).each(function(index, value) {
+
+                if (jQuery(this).parent().children(':first-child').attr('class') === "col_TOTAL") {
+                    return;
+                }
+
+                let val = jQuery(this).html();
+                if (val !== "-") {
+                    val = Number(val);
+                    if (val > threshold) {
+                        jQuery(this).addClass("flag-over");
+                    }
+                }
+            });
+        }
+    }
+
+    function formatNumber(x) {
+        if (!x) {
+            return "-"
+        } else {
+            return (x*100/100).toFixed(1);
+        }
+    }
+
+    let pieChart;
+    let barChart;
+
+    let pieChartSvg;
+    let barChartSvg;
+
+    function populatePieChart(queryData) {
+
+        nv.addGraph(function() {
+            pieChart = nv.models.pieChart()
+                .x(function(d) { return d.label })
+                .y(function(d) { return d.value })
+                //.color(["#efad4d", "#0066cc", "#66a3e0", "#1cb09a", "#999"])
+                //.color(["#12977E", "#0066CC", "#003d7a","#18a6a2","#66a3e0"])
+                .showLabels(true)
+                //.labelsOutside(true)
+                .labelType("percent")
+            ;
+            //.growOnHover(true);
+
+            pieChart.valueFormat(d3.format('d'));
+
+            pieChartSvg = d3.select("#pie-chart svg").datum(queryData);
+            pieChartSvg.transition().duration(500).call(pieChart);
+
+            nv.utils.windowResize(pieChart.update);
+
+            //chart.pie.donutLabelsOutside(true).donut(true);
+            return pieChart;
+        });
+    }
+
+    function populateBarChart(queryData) {
+        nv.addGraph(function() {
+            barChart = nv.models.multiBarChart()
+                .x(function(d) { return d.label })
+                .y(function(d) { return d.value })
+                //.margin({top: 30, right: 20, bottom: 50, left: 175})
+                //.showValues(true)           //Show bar value next to each bar.
+                //.tooltips(true)             //Show tooltips on hover.
+                //.showControls(true)        //Allow user to switch between "Grouped" and "Stacked" mode.
+                .stacked(true);
+
+            barChart.yAxis
+                .tickFormat(d3.format(',.2f'));
+
+            barChartSvg = d3.select('#bar-chart svg').datum(queryData);
+            barChartSvg.transition().duration(500).call(barChart);
+
+            nv.utils.windowResize(barChart.update);
+
+            return barChart;
+        });
+    }
+
+    function updateChart(chartType, data) {
+        if (chartType === "pie") {
+            populatePieChart(data);
+        } else if (chartType === "bar") {
+            populateBarChart(data);
+        }
+    }
+
+    jQuery(function() {
+
+        jQuery("#titleDisplay").remove();
+
+        /*
+        jQuery( "#threshold-slider" ).slider({
+            orientation:"horizontal",
+            value:15,
+            min:1,
+            max:100,
+            slide: function( event, ui ) {
+                jQuery( "#threshold" ).html( ui.value + "%");
+            }
+        });
+        jQuery( "#threshold" ).html( jQuery( "#threshold-slider" ).slider( "value" ) + "%");
+         */
+
+        jQuery("#tbl-button").on("click", function() {
+            jQuery("#pie-chart-button").removeClass("active");
+            jQuery("#bar-chart-button").removeClass("active");
+            jQuery(this).addClass("active");
+
+            jQuery("#pie-chart").hide();
+            jQuery("#bar-chart").hide();
+            jQuery("#dataTbl").show();
+
+        });
+
+        jQuery("#pie-chart-button").on("click", function() {
+            jQuery("#tbl-button").removeClass("active");
+            jQuery("#bar-chart-button").removeClass("active");
+            jQuery(this).addClass("active");
+
+            jQuery("#dataTbl").hide();
+            jQuery("#bar-chart").hide();
+            jQuery("#pie-chart").show();
+        });
+
+        jQuery("#bar-chart-button").on("click", function() {
+            jQuery("#tbl-button").removeClass("active");
+            jQuery("#pie-chart-button").removeClass("active");
+            jQuery(this).addClass("active");
+
+            jQuery("#dataTbl").hide();
+            jQuery("#pie-chart").hide();
+            jQuery("#bar-chart").show();
+        });
+
+        jQuery("#generateBtn").trigger('click');
+        updateDisplayDates();
+
+        configureSortableColumns();
+
+        fixConflict();
+
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    });
+
+    jQuery("#threshold-enabled").on("click",function() {
+        if (jQuery(this).is(":checked")) {
+            //jQuery("#threshold-slider").slider("enable");
+            jQuery("#threshold").prop("disabled", false);
+        } else {
+            //jQuery("#threshold-slider").slider("disable");
+            jQuery("#threshold").prop("disabled", true);
+        }
+    });
+
+    function fixConflict() {
+        var isBootstrapEvent = false;
+        if (window.jQuery) {
+            var all = jQuery('*');
+            jQuery.each(['hide.bs.dropdown',
+                'hide.bs.collapse',
+                'hide.bs.modal',
+                'hide.bs.tooltip',
+                'hide.bs.popover'], function(index, eventName) {
+                all.on(eventName, function( event ) {
+                    isBootstrapEvent = true;
+                });
+            });
+        }
+        var originalHide = Element.hide;
+        Element.addMethods({
+            hide: function(element) {
+                if(isBootstrapEvent) {
+                    isBootstrapEvent = false;
+                    return element;
+                }
+                return originalHide(element);
+            }
+        });
+    }
+
+    function configureSortableColumns() {
+        jQuery("#dataTbl thead th").on("click", function() {
+            let sortCol = jQuery(this).attr("sort-col");
+            let sortDir = jQuery(this).attr("sort-dir")
+
+            let params = getParams("process");
+            params.sortCol = sortCol;
+            params.sortDir = sortDir;
+
+            callAjax("table", params);
+
+            if (sortDir === "asc") {
+                jQuery(this).attr("sort-dir", "desc");
+            } else {
+                jQuery(this).attr("sort-dir", "asc");
+            }
+        })
+    }
+
+</script>
+
+
+
+#end

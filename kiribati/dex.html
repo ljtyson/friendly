@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RFC Dependency Graph</title>
+  <!-- <script src="d3/d3.min.js"></script> -->
+   <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+    svg {
+      width: 100vw;
+      height: 100vh;
+    }
+    .link {
+      stroke: #999;
+      stroke-opacity: 0.6;
+    }
+    .node circle {
+      stroke: #fff;
+      stroke-width: 1.5px;
+    }
+    .node text {
+      font-size: 10px;
+      pointer-events: none;
+    }
+    .tooltip {
+      position: absolute;
+      padding: 6px 10px;
+      background: #333;
+      color: #fff;
+      font-size: 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <svg></svg>
+  <div class="tooltip" id="tooltip"></div>
+  <script>
+    const nodes = [
+        {id: "RFC2119", title: "Key Words for RFCs", description: "Defines MUST, SHALL, SHOULD requirement levels", category: "core"},
+        {id: "RFC5234", title: "ABNF Syntax", description: "Augmented Backus-Naur Form for syntax specifications", category: "core"},
+        {id: "RFC5226", title: "IANA Guidelines", description: "Guidelines for Writing IANA Considerations", category: "core"},
+        {id: "RFC3553", title: "IETF Standard Process", description: "An IETF URN Sub-namespace for Registered Protocol Parameters", category: "core"},
+        {id: "RFC5741", title: "RFC Streams", description: "RFC Streams, Headers, and Boilerplates", category: "core"},
+        {id: "RFC3986", title: "URI Syntax", description: "Uniform Resource Identifier Generic Syntax", category: "web"},
+        {id: "RFC7231", title: "HTTP/1.1 Semantics", description: "HTTP/1.1 Semantics and Content", category: "web"},
+        {id: "RFC7232", title: "HTTP/1.1 Conditional", description: "HTTP/1.1 Conditional Requests", category: "web"},
+        {id: "RFC6749", title: "OAuth 2.0", description: "OAuth 2.0 Authorization Framework", category: "web"},
+        {id: "RFC6819", title: "OAuth 2.0 Security", description: "OAuth 2.0 Threat Model and Security Considerations", category: "web"},
+        {id: "RFC5280", title: "X.509 PKI", description: "Internet X.509 Public Key Infrastructure Certificate Profile", category: "security"},
+        {id: "RFC4648", title: "Base Encodings", description: "Base16, Base32, and Base64 Data Encodings", category: "security"},
+        {id: "RFC7159", title: "JSON", description: "JavaScript Object Notation Data Interchange Format", category: "data"},
+        {id: "RFC6350", title: "vCard 4.0", description: "vCard Format Specification", category: "data"},
+        {id: "RFC5646", title: "Language Tags", description: "Tags for Identifying Languages", category: "i18n"},
+        {id: "RFC3629", title: "UTF-8", description: "UTF-8, a transformation format of ISO 10646", category: "i18n"},
+        {id: "RFC2277", title: "IETF I18N Policy", description: "IETF Policy on Character Sets and Languages", category: "i18n"},
+        {id: "RFC4647", title: "Language Matching", description: "Matching of Language Tags", category: "i18n"},
+        {id: "RFC4512", title: "LDAP Directory", description: "Lightweight Directory Access Protocol Directory Information Models", category: "directory"},
+        {id: "RFC7643", title: "SCIM Core Schema", description: "System for Cross-domain Identity Management Core Schema", category: "directory"},
+        {id: "RFC7644", title: "SCIM Protocol", description: "System for Cross-domain Identity Management Protocol", category: "directory"},
+        {id: "RFC2141", title: "URN Syntax", description: "URN Syntax", category: "directory"},
+        {id: "RFC6557", title: "LDAP Extensions", description: "Procedures for Maintaining the LDAP Schema Repositories", category: "directory"},
+        {id: "RFC3966", title: "tel URI", description: "The tel URI for Telephone Numbers", category: "directory"},
+        {id: "RFC5321", title: "SMTP", description: "Simple Mail Transfer Protocol", category: "email"}
+    ];
+    const links = [
+        {source: "RFC5234", target: "RFC2119"},
+        {source: "RFC5741", target: "RFC2119"},
+        {source: "RFC3553", target: "RFC2119"},
+        {source: "RFC7231", target: "RFC3986"},
+        {source: "RFC7232", target: "RFC7231"},
+        {source: "RFC6749", target: "RFC3986"},
+        {source: "RFC6819", target: "RFC6749"},
+        {source: "RFC7231", target: "RFC2119"},
+        {source: "RFC6749", target: "RFC2119"},
+        {source: "RFC5280", target: "RFC2119"},
+        {source: "RFC4648", target: "RFC2119"},
+        {source: "RFC6749", target: "RFC4648"},
+        {source: "RFC7159", target: "RFC2119"},
+        {source: "RFC6350", target: "RFC2119"},
+        {source: "RFC6350", target: "RFC3986"},
+        {source: "RFC5646", target: "RFC2119"},
+        {source: "RFC4647", target: "RFC5646"},
+        {source: "RFC3629", target: "RFC2119"},
+        {source: "RFC2277", target: "RFC2119"},
+        {source: "RFC4512", target: "RFC2119"},
+        {source: "RFC7643", target: "RFC2119"},
+        {source: "RFC7644", target: "RFC7643"},
+        {source: "RFC7644", target: "RFC2119"},
+        {source: "RFC2141", target: "RFC2119"},
+        {source: "RFC6557", target: "RFC4512"},
+        {source: "RFC3966", target: "RFC3986"},
+        {source: "RFC7643", target: "RFC5646"},
+        {source: "RFC5321", target: "RFC2119"},
+        {source: "RFC5321", target: "RFC5234"},
+        {source: "RFC7231", target: "RFC5646"},
+        {source: "RFC6350", target: "RFC5646"},
+        {source: "RFC4512", target: "RFC3629"}
+    ];
+
+    const svg = d3.select("svg"),
+          width = window.innerWidth,
+          height = window.innerHeight,
+          tooltip = d3.select("#tooltip");
+
+    const color = d3.scaleOrdinal()
+      .domain(["core", "web", "security", "data", "i18n", "directory", "email"])
+      .range(["#1f77b4", "#2ca02c", "#d62728", "#9467bd", "#8c564b", "#e377c2", "#7f7f7f"]);
+
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(80))
+      .force("charge", d3.forceManyBody().strength(-300))
+      .force("center", d3.forceCenter(width / 2, height / 2));
+
+    const link = svg.append("g")
+      .attr("stroke", "#999")
+      .attr("stroke-opacity", 0.6)
+      .selectAll("line")
+      .data(links)
+      .join("line")
+      .attr("stroke-width", 1.5);
+
+    const node = svg.append("g")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5)
+      .selectAll("g")
+      .data(nodes)
+      .join("g")
+      .attr("class", "node")
+      .call(d3.drag()
+        .on("start", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x;
+          d.fy = event.y;
+        })
+        .on("end", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }));
+
+    node.append("circle")
+      .attr("r", 8)
+      .attr("fill", d => color(d.category))
+      .on("mouseover", (event, d) => {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.id}</strong><br>${d.title}<br><small>${d.description}</small>`)
+          .style("left", (event.pageX + 10) + "px")
+          .style("top", (event.pageY + 10) + "px");
+      })
+      .on("mouseout", () => tooltip.style("opacity", 0));
+
+    node.append("text")
+      .attr("x", 12)
+      .attr("dy", "0.35em")
+      .text(d => d.id);
+
+    simulation.on("tick", () => {
+      link
+        .attr("x1", d => d.source.x)
+        .attr("y1", d => d.source.y)
+        .attr("x2", d => d.target.x)
+        .attr("y2", d => d.target.y);
+
+      node.attr("transform", d => `translate(${d.x},${d.y})`);
+    });
+  </script>
+</body>
+</html>

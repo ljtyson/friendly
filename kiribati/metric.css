@@ -1,0 +1,197 @@
+.container {
+	max-width: 1600px;
+	min-width: 1600px;
+	margin-top: 25px;
+}
+
+.styled-table {
+	border-collapse: collapse;
+	font-family: sans-serif;
+	min-width: 400px;
+	table-layout: fixed;
+}
+
+.styled-table thead {
+	vertical-align: bottom;
+}
+
+.styled-table thead tr {
+	text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+	padding: 12px 15px;
+	font-size: smaller;
+}
+
+.styled-table th {
+	vertical-align: bottom;
+}
+
+.styled-table td {
+	text-align: center;
+}
+
+.styled-table th:first-child {
+	width: 200px;
+}
+
+.styled-table th:not(:first-child) {
+	width: 95px;
+}
+
+.styled-table tr td:first-child {
+	text-align: left;
+}
+
+.styled-table tbody tr {
+	border-bottom: thin solid #dddddd;
+}
+
+.params {
+	padding: 25px;
+	border: thin solid #ddd;
+	font-size: smaller;
+}
+
+.dateRange {
+	text-align: right;
+}
+
+.buttons {
+	text-align: center;
+	padding-top: 25px;
+}
+
+.overlay {
+	display: none;
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	z-index: 999;
+	background: rgba(255, 255, 255, 0.8) url("themes/default/web-pub/images/icons/ajax-loader.gif") center no-repeat;
+}
+
+/* Turn off scrollbar when body element has the loading class */
+body.loading {
+	overflow: hidden;
+}
+
+/* Make spinner image visible when body element has the loading class */
+body.loading .overlay {
+	display: block;
+}
+
+.epa-logo {
+	text-align: center;
+	padding-bottom: 25px;
+}
+
+.epa-logo img {
+	width: 175px;
+}
+
+.chart {
+	border: thin solid #ddd;
+	height: 100%;
+	width: 100%;
+}
+
+#pie-chart svg {
+	height: 980px !important;
+	width: 980px !important;
+}
+
+#bar-chart svg {
+	height: 980px !important;
+	width: 980px !important;
+}
+
+.card {
+	min-width: 450px;
+	border: thin solid #ddd;
+}
+
+.card-header,
+.btn-group {
+	cursor: pointer;
+}
+
+.card-header {
+	color: white;
+	font-weight: bold;
+}
+
+.metrics-name {
+	padding-left: 10px;
+}
+
+.metrics-name i {
+	font-size: smaller;
+}
+
+.container td {
+	padding: 0.75rem 0.75rem;
+}
+
+.container tr td:not(:first-child) {
+	text-align: center;
+	width: 55px;
+}
+
+.container table tfoot td {
+	text-align: right;
+	font-weight: bold;
+	font-style: italic;
+	font-size: smaller;
+}
+
+.summaryTable {
+	font-size: 14px;
+	width: 100%;
+}
+
+.summaryTable tr th:not(:first-child) {
+	width: 20%;
+	text-align: center;
+}
+
+.summaryTable tr th:first-child {
+	width: 40%;
+}
+
+.summaryTable .info {
+	text-align: center;
+	font-size: smaller;
+	font-style: italic;
+	font-weight: bold;
+	border: none;
+}
+
+#dataTbl thead th {
+	cursor: pointer;
+}
+
+.row {
+	padding-bottom: 25px;
+}
+
+#records_table td {
+	text-align: left;
+}
+
+#rapbackStatusData .card-header {
+	cursor: default;
+	width: 100%;
+}
+
+#rapbackStatusData .metrics-name {
+	width: 200px;
+}
+
+#rapbackStatusData .text-end {
+	width: 100%;
+}
