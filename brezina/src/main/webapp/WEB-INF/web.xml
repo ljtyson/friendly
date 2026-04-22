@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<web-app id="WebApp_ID">
+	<display-name>brezina</display-name>
+	 <context-param>
+
+    <param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+    <param-value>en-us</param-value>
+  </context-param>
+    <context-param>
+
+    <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+    <param-value>resources.text</param-value>
+  </context-param>
+    <servlet>
+    	<servlet-name>Hello</servlet-name>
+    	<display-name>Hello</display-name>
+    	<description></description>
+    	<servlet-class>Hello</servlet-class>
+    </servlet>
+    <servlet-mapping>
+    	<servlet-name>Hello</servlet-name>
+    	<url-pattern>/hello</url-pattern>
+    </servlet-mapping>
+	<welcome-file-list>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.xhtml</welcome-file>
+	</welcome-file-list>
+	  <error-page>
+    <error-code>404</error-code>
+    <location>/jspf/entellitrak/rt/common/errors/error404.jsp</location>
+  </error-page>
+  <error-page>
+    <error-code>400</error-code>
+    <location>/jspf/entellitrak/rt/common/errors/error400.jsp</location>
+  </error-page>
+	  <error-page>
+    <error-code>500</error-code>
+    <location>/jspf/entellitrak/rt/common/errors/error500.jsp</location>
+  </error-page>
+</web-app>
